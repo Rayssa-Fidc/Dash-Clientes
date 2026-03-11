@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Dashboard FIDC — LFS Financial Advisory</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-authentication-library-for-js/2.38.3/msal-browser.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -476,95 +477,101 @@ let rowIdx = {}, docsIdx = {};
 // IDs embutidos no código — setup removido
 
 // ════════════════════════════════════════
-// MSAL
+// MSAL — Microsoft Authentication
 // ════════════════════════════════════════
-function initMSAL() {
-  if(!CFG.tenantId){ showOffline(); return; }
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/microsoft-authentication-library-for-js/2.38.3/msal-browser.min.js';
-  s.onload = () => {
+async function initMSAL() {
+  try {
     msalI = new msal.PublicClientApplication({
-      auth:{
+      auth: {
         clientId: CFG.clientId,
-        authority: `https://login.microsoftonline.com/${CFG.tenantId}`,
-        redirectUri: location.href.split('?')[0].split('#')[0],
+        authority: 'https://login.microsoftonline.com/' + CFG.tenantId,
+        redirectUri: 'https://rayssa-fidc.github.io/Dash-Clientes/',
       },
-      cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false},
-    });
-    msalI.initialize().then(async () => {
-      // Com loginPopup não há redirect — apenas verifica se já há sessão salva
-      const accs = msalI.getAllAccounts();
-      if(accs.length > 0) {
-        const r = await acquireTok(accs[0]);
-        if(r) { onLogin(accs[0]); }
-        else { showLoginOverlay(); }
-      } else {
-        showLoginOverlay();
+      cache: {
+        cacheLocation: 'localStorage',
+        storeAuthStateInCookie: true,
+      },
+      system: {
+        allowNativeBroker: false,
       }
-    }).catch(() => showLoginOverlay());
-  };
-  document.head.appendChild(s);
+    });
+
+    await msalI.initialize();
+
+    // Verifica se já há sessão salva
+    const accs = msalI.getAllAccounts();
+    if (accs.length > 0) {
+      try {
+        const r = await msalI.acquireTokenSilent({ scopes: SCOPES, account: accs[0] });
+        tok = r.accessToken;
+        onLogin(accs[0]);
+        return;
+      } catch(e) {
+        // Token expirado — pede login novamente
+      }
+    }
+    showLoginOverlay();
+  } catch(e) {
+    console.error('initMSAL erro:', e);
+    showLoginOverlay();
+  }
 }
+
 async function acquireTok(acc) {
   try {
-    const r = await msalI.acquireTokenSilent({scopes:SCOPES,account:acc});
+    const r = await msalI.acquireTokenSilent({ scopes: SCOPES, account: acc });
     tok = r.accessToken; return r;
   } catch(e) { return null; }
 }
-function doLoginFromOverlay() {
-  const remember = document.getElementById('loRemember').checked;
-  localStorage.setItem('fidc_remember', remember ? 'true' : 'false');
-  document.getElementById('loLoginArea').style.display='none';
-  document.getElementById('loLoading').style.display='flex';
 
-  async function triggerLogin() {
-    try {
-      // Popup: abre janela de login sem sair da página (funciona em qualquer ambiente)
-      const resp = await msalI.loginPopup({
-        scopes: SCOPES,
-        domainHint: 'lfsfinancial.com.br',
-        prompt: 'select_account',
-      });
-      tok = resp.accessToken;
-      onLogin(resp.account);
-    } catch(e) {
-      console.error('Login popup erro:', e);
-      document.getElementById('loLoading').style.display='none';
-      document.getElementById('loLoginArea').style.display='block';
-      if(e.errorCode === 'popup_window_error' || e.errorCode === 'empty_window_error') {
-        toast('Permita popups para este site e tente novamente.', 'err');
-      } else if(e.errorCode !== 'user_cancelled') {
-        toast('Erro no login: ' + (e.errorMessage || e.message || 'tente novamente'), 'err');
-      }
-    }
+async function doLoginFromOverlay() {
+  document.getElementById('loLoginArea').style.display = 'none';
+  document.getElementById('loLoading').style.display = 'flex';
+
+  if (!msalI) {
+    document.getElementById('loLoading').style.display = 'none';
+    document.getElementById('loLoginArea').style.display = 'block';
+    toast('Autenticação não inicializada. Recarregue a página.', 'err');
+    return;
   }
 
-  if(msalI) {
-    triggerLogin();
-  } else {
-    let tries = 0;
-    const wait = setInterval(() => {
-      tries++;
-      if(msalI) { clearInterval(wait); triggerLogin(); }
-      else if(tries > 30) {
-        clearInterval(wait);
-        document.getElementById('loLoading').style.display='none';
-        document.getElementById('loLoginArea').style.display='block';
-        toast('Erro ao carregar autenticação. Verifique sua conexão.', 'err');
-      }
-    }, 200);
+  try {
+    const resp = await msalI.loginPopup({
+      scopes: SCOPES,
+      prompt: 'select_account',
+    });
+    tok = resp.accessToken;
+    onLogin(resp.account);
+  } catch(e) {
+    console.error('loginPopup erro:', e);
+    document.getElementById('loLoading').style.display = 'none';
+    document.getElementById('loLoginArea').style.display = 'block';
+
+    const code = e.errorCode || '';
+    if (code === 'popup_window_error' || code === 'empty_window_error') {
+      toast('Popups bloqueados. Permita popups para este site.', 'err');
+    } else if (code === 'user_cancelled') {
+      // usuário fechou — silencioso
+    } else {
+      toast('Erro no login: ' + (e.errorMessage || e.message || code), 'err');
+    }
   }
 }
 
 function doLogin() { doLoginFromOverlay(); }
 
 function doLogout() {
-  if(msalI) msalI.logoutRedirect();
-  tok=null;
-  document.getElementById('authPill').style.display='none';
-  document.getElementById('loginBtn').style.display='flex';
-  document.getElementById('logoutBtn').style.display='none';
-  showOffline();
+  tok = null;
+  if (msalI) {
+    const accs = msalI.getAllAccounts();
+    if (accs.length > 0) {
+      msalI.logoutPopup({ account: accs[0] }).catch(() => {});
+    }
+  }
+  document.getElementById('authPill').style.display = 'none';
+  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'none';
+  showLoginOverlay();
 }
 function onLogin(acc) {
   document.getElementById('loginBtn').style.display='none';
@@ -1211,16 +1218,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('hts').textContent=TODAY.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
   DATA.rows=consolidate(OFFLINE); DATA.docs_map={};
   buildPills(); popSelects(); renderAll();
-  if(CFG.tenantId){
-    // Mostra botão de login; MSAL tentará silenciosamente e esconde se já logado
-    document.getElementById('loginOverlay').style.display='flex';
-    document.getElementById('loLoading').style.display='none';
-    document.getElementById('loLoginArea').style.display='block';
-    initMSAL();
-  } else {
-    // Tenant ID não configurado — mostra tela de login offline
-    showLoginOverlay();
-  }
+  // MSAL já carregado no <head> — inicializa direto
+  showLoginOverlay(); // mostra tela enquanto verifica sessão
+  initMSAL();         // tenta sessão salva em background
 });
 </script>
 </body>
