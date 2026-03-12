@@ -176,6 +176,17 @@ table.dt tbody td{padding:9px 14px;font-size:13px;}
 .ef-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);}
 .ef-i{padding:9px 12px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;background:#fff;color:var(--tx);outline:none;}
 .ef-i:focus{border-color:var(--or);}
+.grupo-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg);border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;user-select:none;font-size:13px;color:var(--tx);transition:border-color .15s,background .15s;}
+.grupo-toggle:hover{border-color:var(--or);}
+.grupo-toggle.active{border-color:var(--or);background:#fff8f0;}
+.grupo-toggle input[type=checkbox]{accent-color:var(--or);width:16px;height:16px;cursor:pointer;}
+.grupo-rows{margin-top:4px;border-left:3px solid var(--or);padding-left:12px;display:flex;flex-direction:column;gap:8px;}
+.grupo-row-item{display:flex;align-items:center;gap:6px;}
+.grupo-row-item input{flex:1;}
+.grupo-row-item button{background:none;border:none;cursor:pointer;font-size:16px;color:#999;padding:2px 4px;line-height:1;}
+.grupo-row-item button:hover{color:#e74c3c;}
+.grupo-add{font-size:12px;color:var(--or);background:none;border:none;cursor:pointer;padding:4px 0;font-weight:600;text-decoration:underline;}
+.grupo-add:hover{opacity:.8;}
 textarea.ef-i{resize:vertical;}
 
 /* DOCS CHECKLIST */
@@ -205,6 +216,20 @@ textarea.ef-i{resize:vertical;}
 /* BANNERS */
 .offline-b{background:var(--go-dim);border:1.5px dashed var(--go);border-radius:10px;padding:10px 15px;margin-bottom:16px;font-size:13px;color:var(--ye);display:none;align-items:center;gap:10px;}
 .cfg-b{background:var(--rd-dim);border:1.5px dashed var(--rd);border-radius:10px;padding:10px 15px;margin-bottom:16px;font-size:13px;color:var(--rd);display:none;align-items:center;gap:10px;}
+
+/* FILTER SELECTS */
+.fb-sel{
+  padding:6px 30px 6px 10px;border:1.5px solid var(--bd);border-radius:8px;
+  font-size:13px;background:#fff;color:var(--tx);outline:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a6e5f'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  font-family:'DM Sans',sans-serif;
+  transition:border-color .15s;
+  min-width:130px;
+}
+.fb-sel:focus{border-color:var(--or);}
+.fb-sel.has-value{border-color:var(--or);color:var(--or);font-weight:600;}
 
 /* GROUP TAG */
 .gtag{font-size:10px;background:var(--bl-dim);color:var(--bl);padding:2px 7px;border-radius:10px;font-weight:700;cursor:help;margin-left:4px;}
@@ -347,8 +372,18 @@ footer{text-align:center;padding:16px;color:var(--mu);font-size:12px;border-top:
 <div class="fbar">
   <div class="fb-title">Dashboard de Controle — Gerentes <span class="mo-tag" id="moLbl">Todos</span></div>
   <div class="fb-row">
-    <div class="fb-grp"><span class="fb-lbl">Período</span><div class="pills" id="pillsMes"></div></div>
-    <div class="fb-grp"><span class="fb-lbl">Gerente</span><div class="pills" id="pillsGe"></div></div>
+    <div class="fb-grp">
+      <span class="fb-lbl">Período</span>
+      <select class="fb-sel" id="selMes" onchange="onSelMes(this)">
+        <option value="todos">Todos os períodos</option>
+      </select>
+    </div>
+    <div class="fb-grp">
+      <span class="fb-lbl">Gerente</span>
+      <select class="fb-sel" id="selGe" onchange="onSelGe(this)">
+        <option value="todos">Todos os gerentes</option>
+      </select>
+    </div>
   </div>
 </div>
 
@@ -370,6 +405,23 @@ footer{text-align:center;padding:16px;color:var(--mu);font-size:12px;border-top:
   </div>
   <div class="block">
     <div class="bhead"><span class="btitle" id="detT">Detalhamento de Clientes</span></div>
+    <div class="toolbar">
+      <div class="srch"><input type="text" id="srchDet" placeholder="Buscar cliente…" oninput="renderDet(filtered())"/></div>
+      <select class="sel" id="selStDet" onchange="renderDet(filtered())">
+        <option value="">Todos os status</option>
+        <option>Finalizado</option><option>Contrato Pendente</option><option>Contrato e Documentos</option>
+        <option>Documento Pendente</option><option>Pausado</option><option>Declinado LFS</option>
+        <option>Declinado Cliente</option><option>Direcionado Crédito</option>
+      </select>
+      <select class="sel" id="selAlDet" onchange="renderDet(filtered())">
+        <option value="">Todos os alertas</option>
+        <option value="al-ativo">Ativo</option>
+        <option value="al-and">Em Andamento</option>
+        <option value="al-sr">Sem Retorno</option>
+        <option value="al-inativo">Inativo</option>
+      </select>
+      <div class="cnt" id="detCnt"></div>
+    </div>
     <table class="dt">
       <thead><tr><th>Cliente</th><th>Gerente</th><th>Status</th><th>Entrada</th><th>Alerta</th><th>Cobranças</th><th>Obs.</th><th></th></tr></thead>
       <tbody id="detTB"></tbody>
@@ -997,41 +1049,56 @@ function filtered(){
 // PILLS
 // ════════════════════════════════════════
 function buildPills(){
-  const mos=[...new Set(DATA.rows.map(r=>r.entrada?.substring(0,7)).filter(Boolean))].sort();
-  const pm=document.getElementById('pillsMes'); pm.innerHTML='';
-  addP(pm,'todos','Todos','mo');
-  mos.forEach(m=>{ const[yr,mo]=m.split('-'); addP(pm,m,MO[+mo-1]+' '+yr,'mo'); });
-  const ges=[...new Set(DATA.rows.map(r=>r.responsavel).filter(Boolean))].sort();
-  const pg=document.getElementById('pillsGe'); pg.innerHTML='';
-  addP(pg,'todos','Todos','ge');
-  ges.forEach(g=>addP(pg,g,g,'ge'));
-  styleGe();
-}
-function addP(cont,val,lbl,type){
-  const b=document.createElement('button');
-  const sel=type==='mo'?selM:selG, active=sel.has(val);
-  b.className='pill'+(active?(type==='mo'?' p-mo':' p-ge'):'');
-  b.textContent=lbl; b.dataset.val=val; b.dataset.type=type;
-  b.onclick=()=>togP(b,type);
-  if(type==='ge'&&val!=='todos'&&active){ const c=GC[val]||'#555'; b.style.background=c; b.style.borderColor=c; }
-  cont.appendChild(b);
-}
-function togP(btn,type){
-  const val=btn.dataset.val, sel=type==='mo'?selM:selG;
-  if(val==='todos'){sel.clear();sel.add('todos');}
-  else{sel.delete('todos');if(sel.has(val)){sel.delete(val);if(!sel.size)sel.add('todos');}else sel.add(val);}
-  if(type==='mo'){
-    document.getElementById('pillsMes').querySelectorAll('.pill').forEach(p=>{ p.classList.remove('p-mo'); if(selM.has(p.dataset.val)) p.classList.add('p-mo'); });
-    document.getElementById('moLbl').textContent=selM.has('todos')?'Todos':[...selM].map(m=>{const[yr,mo]=m.split('-');return MOL[+mo-1]+' '+yr;}).join(', ');
-  }
-  styleGe(); renderAll();
-}
-function styleGe(){
-  document.getElementById('pillsGe').querySelectorAll('.pill').forEach(p=>{
-    p.classList.remove('p-ge'); p.style.background=''; p.style.borderColor='';
-    if(selG.has(p.dataset.val)){ p.classList.add('p-ge'); if(p.dataset.val!=='todos'){const c=GC[p.dataset.val]||'#555';p.style.background=c;p.style.borderColor=c;} }
+  // Reconstrói os selects de período e gerente
+  const mos=[...new Set(DATA.rows.map(r=>r.entrada&&r.entrada.substring(0,7)).filter(Boolean))].sort();
+  const selMes = document.getElementById('selMes');
+  const curMes = selMes.value;
+  selMes.innerHTML = '<option value="todos">Todos os períodos</option>';
+  mos.forEach(m => {
+    const [yr,mo] = m.split('-');
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = MO[+mo-1] + ' ' + yr;
+    selMes.appendChild(opt);
   });
+  // Restaura seleção
+  if (curMes && curMes !== 'todos' && mos.includes(curMes)) selMes.value = curMes;
+  selMes.classList.toggle('has-value', selMes.value !== 'todos');
+
+  const ges=[...new Set(DATA.rows.map(r=>r.responsavel).filter(Boolean))].sort();
+  const selGe = document.getElementById('selGe');
+  const curGe = selGe.value;
+  selGe.innerHTML = '<option value="todos">Todos os gerentes</option>';
+  ges.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g; opt.textContent = g;
+    selGe.appendChild(opt);
+  });
+  if (curGe && curGe !== 'todos' && ges.includes(curGe)) selGe.value = curGe;
+  selGe.classList.toggle('has-value', selGe.value !== 'todos');
 }
+
+function onSelMes(el) {
+  const val = el.value;
+  selM.clear();
+  selM.add(val === 'todos' ? 'todos' : val);
+  el.classList.toggle('has-value', val !== 'todos');
+  const label = val === 'todos' ? 'Todos' : (() => { const [yr,mo]=val.split('-'); return MOL[+mo-1]+' '+yr; })();
+  document.getElementById('moLbl').textContent = label;
+  renderAll();
+}
+
+function onSelGe(el) {
+  const val = el.value;
+  selG.clear();
+  selG.add(val);
+  el.classList.toggle('has-value', val !== 'todos');
+  renderAll();
+}
+
+// Mantém compatibilidade — styleGe não precisa mais fazer nada visual
+function styleGe() {}
+function addP() {}
+function togP() {}
 
 // ════════════════════════════════════════
 // RENDER
@@ -1063,6 +1130,18 @@ function renderMetas(rows){
 }
 
 function renderDet(rows){
+  const s   = (document.getElementById('srchDet')?.value||'').toLowerCase();
+  const stF = document.getElementById('selStDet')?.value||'';
+  const alF = document.getElementById('selAlDet')?.value||'';
+  if (s||stF||alF) {
+    rows = rows.filter(r=>{
+      if (s && !(r.cliente||'').toLowerCase().includes(s)) return false;
+      if (stF && r.status !== stF) return false;
+      if (alF && alerta(r).cls !== alF) return false;
+      return true;
+    });
+  }
+  document.getElementById('detCnt').textContent = rows.length + ' cliente(s)';
   document.getElementById('detTB').innerHTML=[...rows].sort((a,b)=>(a.entrada||'').localeCompare(b.entrada||'')).map(r=>{
     const cobs=[r.cob1,r.cob2,r.cob3].filter(Boolean).map(d=>fmtBR(d)).join('; '),c=GC[r.responsavel]||'#555';
     return `<tr style="cursor:pointer" onclick="openDetail('${mk(r.cliente)}')">
@@ -1228,12 +1307,34 @@ function openNewModal(){
   renderEF(r,true); openM();
 }
 function renderEF(r,isNew){
+  const grupoSalvo = r._grupo || '';
+  const grupoList  = grupoSalvo ? grupoSalvo.split('|').map(s=>s.trim()).filter(Boolean) : [];
+  const isGrupo    = grupoList.length > 0;
+  const gerentes   = ['Ana','Arnaldo','César','Fred','Gabriel','Luiz','Rodrigo'];
+
   document.getElementById('mB').innerHTML=`
     <div class="ef-row full"><div class="ef-g"><label class="ef-l">Nome do Cliente *</label>
       <input class="ef-i" id="ef_c" value="${r.cliente||''}" ${!isNew?'readonly style="background:var(--bg);cursor:not-allowed"':''} placeholder="Razão Social Ltda"/></div></div>
+    ${isNew ? `
+    <div class="ef-row full"><div class="ef-g">
+      <label class="grupo-toggle${isGrupo?' active':''}" id="grupoToggle">
+        <input type="checkbox" id="ef_is_grupo" ${isGrupo?'checked':''} onchange="toggleGrupo()"/>
+        É um grupo? (múltiplas razões sociais)
+      </label>
+      <div id="grupoPanel" style="display:${isGrupo?'block':'none'};margin-top:8px;">
+        <div class="grupo-rows" id="grupoRows">
+          ${grupoList.map((g,i)=>`
+            <div class="grupo-row-item" id="gri_${i}">
+              <input class="ef-i" placeholder="Razão Social do grupo" value="${g}" id="ef_gr_${i}"/>
+              <button type="button" onclick="removeGrupoRow(${i})" title="Remover">✕</button>
+            </div>`).join('')}
+        </div>
+        <button type="button" class="grupo-add" onclick="addGrupoRow()">+ Adicionar empresa do grupo</button>
+      </div>
+    </div></div>` : ''}
     <div class="ef-row">
       <div class="ef-g"><label class="ef-l">Gerente *</label>
-        <select class="ef-i" id="ef_r">${['Ana','Arnaldo','César','Fred','Gabriel','Luiz','Rodrigo'].map(g=>`<option ${r.responsavel===g?'selected':''}>${g}</option>`).join('')}</select></div>
+        <select class="ef-i" id="ef_r">${gerentes.map(g=>`<option ${r.responsavel===g?'selected':''}>${g}</option>`).join('')}</select></div>
       <div class="ef-g"><label class="ef-l">Tipo de Operação</label>
         <select class="ef-i" id="ef_t">${TIPO_LIST.map(t=>`<option value="${t}" ${r.tipo===t?'selected':''}>${t||'(não definido)'}</option>`).join('')}</select></div>
     </div>
@@ -1258,12 +1359,37 @@ function renderEF(r,isNew){
     <div class="ef-row full"><div class="ef-g"><label class="ef-l">Observação</label>
       <textarea class="ef-i" id="ef_o" rows="2">${r.observacao||''}</textarea></div></div>`;
   document.getElementById('mA').innerHTML=
-    `${!isNew?`<button class="mabtn del" onclick="confirmDel('${mk(r.cliente)}',${r._row||0})">🗑 Excluir</button>`:''}
-     <button class="mabtn" onclick="closeMO()">Cancelar</button>
-     <button class="mabtn save" onclick="saveEdit('${mk(r.cliente)}',${isNew},${r._row||0})">💾 Salvar</button>`;
+    `${!isNew?`<button class="mabtn del" onclick="confirmDel('${mk(r.cliente)}',${r._row||0})">🗑 Excluir</button>`:''}<button class="mabtn" onclick="closeMO()">Cancelar</button><button class="mabtn save" onclick="saveEdit('${mk(r.cliente)}',${isNew},${r._row||0})">💾 Salvar</button>`;
 }
 
+// ── Grupo helpers ──
+let _grupoCount = 0;
+function toggleGrupo(){
+  const cb    = document.getElementById('ef_is_grupo');
+  const panel = document.getElementById('grupoPanel');
+  const label = document.getElementById('grupoToggle');
+  if(!panel) return;
+  panel.style.display = cb.checked ? 'block' : 'none';
+  label.classList.toggle('active', cb.checked);
+  if(cb.checked && document.querySelectorAll('#grupoRows .grupo-row-item').length===0) addGrupoRow();
+}
+function addGrupoRow(){
+  const rows = document.getElementById('grupoRows');
+  if(!rows) return;
+  const idx = _grupoCount++;
+  const div = document.createElement('div');
+  div.className='grupo-row-item'; div.id='gri_'+idx;
+  div.innerHTML=`<input class="ef-i" placeholder="Razão Social do grupo" id="ef_gr_${idx}"/><button type="button" onclick="removeGrupoRow(${idx})" title="Remover">✕</button>`;
+  rows.appendChild(div);
+}
+function removeGrupoRow(idx){ const el=document.getElementById('gri_'+idx); if(el) el.remove(); }
+function collectGrupo(){
+  const cb=document.getElementById('ef_is_grupo');
+  if(!cb||!cb.checked) return '';
+  return [...document.querySelectorAll('#grupoRows input')].map(i=>i.value.trim()).filter(Boolean).join(' | ');
+}
 async function saveEdit(origCli, isNew, sheetRow){
+  const _grupoStr = isNew ? collectGrupo() : '';
   const row={
     cliente: isNew?document.getElementById('ef_c').value.trim():origCli,
     responsavel:document.getElementById('ef_r').value,
@@ -1277,6 +1403,7 @@ async function saveEdit(origCli, isNew, sheetRow){
     assinado:document.getElementById('ef_a').value,
     declinio_motivo:document.getElementById('ef_d').value,
     observacao:document.getElementById('ef_o').value,
+    _grupo:_grupoStr||'',
     _row:sheetRow||null,
   };
   if(!row.cliente){toast('Nome do cliente obrigatório.','err');return;}
