@@ -2,29 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Dashboard FIDC — LFS Financial Advisory</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
-<script>
-var MSAL_LOADED = false;
-var MSAL_URLS = [
-  'https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js',
-  'https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/dist/msal-browser.min.js',
-  'https://unpkg.com/@azure/msal-browser@2.38.3/dist/msal-browser.min.js'
-];
-var _msalIdx = 0;
-function _loadMsal() {
-  if (_msalIdx >= MSAL_URLS.length) return;
-  var s = document.createElement('script');
-  s.src = MSAL_URLS[_msalIdx++];
-  s.crossOrigin = 'anonymous';
-  s.onload = function(){ MSAL_LOADED = true; };
-  s.onerror = _loadMsal;
-  document.head.appendChild(s);
-}
-_loadMsal();
-</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -478,7 +458,7 @@ const CFG = {
 const FILE_ID = 'a0f48875-4a46-4412-8d92-ddc573574e20';
 const SHEET_CTRL = 'Controle Aproximação';
 const SHEET_DOCS = 'Docs Pendentes - FIDC';
-const SCOPES = ['Files.ReadWrite','Sites.ReadWrite.All','User.Read'];
+// SCOPES definidos em SCOPE (string) para PKCE nativo
 
 const MO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const MOL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -490,111 +470,216 @@ const TIPO_LIST = ['','Antecipação de Convencionais','Antecipação de Contrat
 
 let DATA = { rows: [], docs_map: {} };
 let selM = new Set(['todos']), selG = new Set(['todos']);
-let tok = null, msalI = null;
+let tok = null;
 let wbDrive = null, wbItem = null;
 let rowIdx = {}, docsIdx = {};
 
 // IDs embutidos no código — setup removido
 
 // ════════════════════════════════════════
-// MSAL — Microsoft Authentication
+// AUTH — OAuth2 PKCE nativo (sem dependências)
 // ════════════════════════════════════════
-async function initMSAL() {
-  // Espera o script do MSAL estar disponível (máx 15s)
-  if (typeof msal === 'undefined') {
-    await new Promise((resolve, reject) => {
-      let elapsed = 0;
-      const iv = setInterval(() => {
-        elapsed += 50;
-        if (typeof msal !== 'undefined') { clearInterval(iv); resolve(); }
-        else if (elapsed > 15000) {
-          clearInterval(iv);
-          reject(new Error('Script MSAL não carregou. Verifique conexão ou bloqueio de script.'));
-        }
-      }, 50);
-    });
-  }
-  try {
-    msalI = new msal.PublicClientApplication({
-      auth: {
-        clientId: CFG.clientId,
-        authority: 'https://login.microsoftonline.com/' + CFG.tenantId,
-        redirectUri: 'https://rayssa-fidc.github.io/Dash-Clientes/',
-      },
-      cache: {
-        cacheLocation: 'localStorage',
-        storeAuthStateInCookie: true,
-      },
-      system: {
-        allowNativeBroker: false,
-      }
-    });
+const TENANT  = CFG.tenantId;
+const CLIENT  = CFG.clientId;
+const REDIRECT = 'https://rayssa-fidc.github.io/Dash-Clientes/';
+const AUTH_URL = `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/authorize`;
+const TOKEN_URL = `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/token`;
+const SCOPE = 'openid profile User.Read Files.ReadWrite Sites.ReadWrite.All offline_access';
 
-    await msalI.initialize();
-
-    // Verifica se já há sessão salva
-    const accs = msalI.getAllAccounts();
-    if (accs.length > 0) {
-      try {
-        const r = await msalI.acquireTokenSilent({ scopes: SCOPES, account: accs[0] });
-        tok = r.accessToken;
-        onLogin(accs[0]);
-        return;
-      } catch(e) {
-        // Token expirado — pede login novamente
-      }
-    }
-    showLoginOverlay();
-  } catch(e) {
-    console.error('initMSAL erro:', e);
-    showLoginOverlay();
-    showLoginError('Erro ao inicializar autenticação: ' + (e.message || e));
-  }
+// Gera string aleatória
+function randStr(len) {
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'').substring(0,len);
 }
 
-async function acquireTok(acc) {
-  try {
-    const r = await msalI.acquireTokenSilent({ scopes: SCOPES, account: acc });
-    tok = r.accessToken; return r;
-  } catch(e) { return null; }
+// SHA-256 + base64url para PKCE
+async function sha256b64(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+// Salva/lê sessão
+function saveSession(data) {
+  try { localStorage.setItem('fidc_session', JSON.stringify(data)); } catch(e){}
+}
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem('fidc_session') || 'null'); } catch(e){ return null; }
+}
+function clearSession() {
+  localStorage.removeItem('fidc_session');
+}
+
+// Verifica se token ainda é válido (com 5min de margem)
+function tokenValid(session) {
+  if (!session || !session.tok || !session.exp) return false;
+  return Date.now() < (session.exp - 300000);
+}
+
+let _popupWin = null;
+let _pkceVerifier = null;
+let _pkceState = null;
+
+async function initMSAL() {
+  // Verifica sessão salva
+  const session = loadSession();
+  if (tokenValid(session)) {
+    tok = session.tok;
+    onLogin({ name: session.name, username: session.email });
+    return;
+  }
+  // Tenta renovar com refresh token
+  if (session?.refresh) {
+    try {
+      const newTok = await refreshToken(session.refresh);
+      if (newTok) {
+        tok = newTok.access_token;
+        saveSession({
+          tok: newTok.access_token,
+          refresh: newTok.refresh_token || session.refresh,
+          exp: Date.now() + (newTok.expires_in * 1000),
+          name: session.name,
+          email: session.email,
+        });
+        onLogin({ name: session.name, username: session.email });
+        return;
+      }
+    } catch(e) {}
+  }
+  showLoginOverlay();
+}
+
+async function refreshToken(refreshTok) {
+  const body = new URLSearchParams({
+    client_id: CLIENT,
+    grant_type: 'refresh_token',
+    refresh_token: refreshTok,
+    scope: SCOPE,
+  });
+  const r = await fetch(TOKEN_URL, { method: 'POST', body });
+  if (!r.ok) return null;
+  return r.json();
 }
 
 async function doLoginFromOverlay() {
   document.getElementById('loLoginArea').style.display = 'none';
   document.getElementById('loLoading').style.display = 'flex';
 
-  if (!msalI) {
-    document.getElementById('loLoading').style.display = 'none';
-    document.getElementById('loLoginArea').style.display = 'block';
-    toast('Autenticação não inicializada. Recarregue a página.', 'err');
-    return;
-  }
-
   try {
-    const resp = await msalI.loginPopup({
-      scopes: SCOPES,
-      prompt: 'select_account',
+    // Gera PKCE
+    _pkceVerifier = randStr(64);
+    _pkceState    = randStr(32);
+    const challenge = await sha256b64(_pkceVerifier);
+
+    // Monta URL de autorização
+    const params = new URLSearchParams({
+      client_id:             CLIENT,
+      response_type:         'code',
+      redirect_uri:          REDIRECT,
+      scope:                 SCOPE,
+      state:                 _pkceState,
+      code_challenge:        challenge,
+      code_challenge_method: 'S256',
+      prompt:                'select_account',
+      domain_hint:           'lfsfinancial.com.br',
     });
-    tok = resp.accessToken;
-    onLogin(resp.account);
+
+    // Abre popup
+    const w = 520, h = 620;
+    const left = Math.round(screen.width/2 - w/2);
+    const top  = Math.round(screen.height/2 - h/2);
+    _popupWin = window.open(
+      AUTH_URL + '?' + params.toString(),
+      'msauth',
+      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`
+    );
+
+    if (!_popupWin) {
+      showLoginError('Popup bloqueado pelo navegador. Permita popups para este site e tente novamente.');
+      return;
+    }
+
+    // Escuta mensagem do popup via postMessage
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        window.removeEventListener('message', handler);
+        reject(new Error('Login expirou. Tente novamente.'));
+      }, 120000);
+
+      // Verifica se o popup fechou sem completar
+      const closedCheck = setInterval(() => {
+        if (_popupWin && _popupWin.closed) {
+          clearInterval(closedCheck);
+          clearTimeout(timeout);
+          window.removeEventListener('message', handler);
+          reject(new Error('cancelled'));
+        }
+      }, 500);
+
+      async function handler(event) {
+        // Aceita mensagens do próprio domínio (popup redireciona para nossa página)
+        if (event.origin !== 'https://rayssa-fidc.github.io') return;
+        const data = event.data;
+        if (!data || data.type !== 'auth_code') return;
+
+        clearTimeout(timeout);
+        clearInterval(closedCheck);
+        window.removeEventListener('message', handler);
+        if (_popupWin) _popupWin.close();
+
+        if (data.error) { reject(new Error(data.error_description || data.error)); return; }
+        if (data.state !== _pkceState) { reject(new Error('State inválido')); return; }
+
+        try {
+          // Troca code por token
+          const tokenResp = await fetch(TOKEN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              client_id:     CLIENT,
+              grant_type:    'authorization_code',
+              code:          data.code,
+              redirect_uri:  REDIRECT,
+              code_verifier: _pkceVerifier,
+            }),
+          });
+          if (!tokenResp.ok) {
+            const err = await tokenResp.json();
+            reject(new Error(err.error_description || 'Erro ao obter token'));
+            return;
+          }
+          const tokenData = await tokenResp.json();
+          tok = tokenData.access_token;
+
+          // Busca perfil do usuário
+          const meResp = await fetch('https://graph.microsoft.com/v1.0/me', {
+            headers: { Authorization: 'Bearer ' + tok }
+          });
+          const me = meResp.ok ? await meResp.json() : {};
+
+          const email = me.mail || me.userPrincipalName || '';
+          const name  = me.displayName || email;
+
+          saveSession({
+            tok:     tokenData.access_token,
+            refresh: tokenData.refresh_token || '',
+            exp:     Date.now() + (tokenData.expires_in * 1000),
+            name, email,
+          });
+
+          onLogin({ name, username: email });
+          resolve();
+        } catch(e) { reject(e); }
+      }
+
+      window.addEventListener('message', handler);
+    });
+
   } catch(e) {
-    console.error('loginPopup erro:', e);
     document.getElementById('loLoading').style.display = 'none';
     document.getElementById('loLoginArea').style.display = 'block';
-
-    const code = e.errorCode || '';
-    const msg  = e.errorMessage || e.message || '';
-
-    if (code === 'popup_window_error' || code === 'empty_window_error') {
-      showLoginError('Popups bloqueados pelo navegador. Clique no ícone na barra de endereço e permita popups para este site.');
-    } else if (code === 'user_cancelled') {
-      // silencioso
-    } else if (msg.includes('redirect_uri') || msg.includes('redirectUri')) {
-      showLoginError('Configuração incorreta no Azure: a Redirect URI deve ser do tipo SPA (Single-page application), não Web. Acesse portal.azure.com → App registrations → Authentication e corrija o tipo.');
-    } else if (code === 'invalid_client' || msg.includes('AADSTS')) {
-      showLoginError('Erro de autenticação Azure (' + code + '). Verifique as permissões do app no portal.azure.com.');
-    } else {
-      showLoginError('Erro no login (' + (code || 'desconhecido') + '): ' + (msg || 'tente novamente'));
+    if (e.message !== 'cancelled') {
+      showLoginError('Erro no login: ' + e.message);
     }
   }
 }
@@ -603,17 +688,24 @@ function doLogin() { doLoginFromOverlay(); }
 
 function doLogout() {
   tok = null;
-  if (msalI) {
-    const accs = msalI.getAllAccounts();
-    if (accs.length > 0) {
-      msalI.logoutPopup({ account: accs[0] }).catch(() => {});
-    }
-  }
+  clearSession();
   document.getElementById('authPill').style.display = 'none';
-  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('loginBtn').style.display  = 'none';
   document.getElementById('logoutBtn').style.display = 'none';
+  // Abre logout do Azure
+  window.open(
+    `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(REDIRECT)}`,
+    '_blank'
+  );
   showLoginOverlay();
 }
+
+// doLogout definido no bloco de auth acima
+function validateDomain(acc) {
+  const email = (acc.username || acc.email || '').toLowerCase();
+  return email.endsWith('@lfsfinancial.com.br');
+}
+
 function onLogin(acc) {
   document.getElementById('loginBtn').style.display='none';
   document.getElementById('logoutBtn').style.display='flex';
@@ -673,7 +765,11 @@ function wbBase() {
 }
 
 async function syncData() {
-  if(!tok){ toast('Faça login para sincronizar.','err'); return; }
+  // Renova token se necessário
+  if (!tok || !tokenValid(loadSession())) {
+    const r = await acquireTok();
+    if (!r) { toast('Sessão expirada. Faça login novamente.','err'); showLoginOverlay(); return; }
+  }
   const btn = document.getElementById('syncBtn');
   btn.classList.add('loading');
   lb(20);
@@ -1269,6 +1365,27 @@ const OFFLINE=[{"cliente":"Cinafe Comercio E Industria De Aco E Ferro Ltda","res
 // INIT
 // ════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
+  // Se esta página foi aberta como popup de auth, envia o code para o pai e fecha
+  (function checkAuthCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const code  = params.get('code');
+    const state = params.get('state');
+    const error = params.get('error');
+    const errDesc = params.get('error_description');
+
+    if ((code || error) && window.opener && !window.opener.closed) {
+      window.opener.postMessage({
+        type:  'auth_code',
+        code, state, error,
+        error_description: errDesc,
+      }, 'https://rayssa-fidc.github.io');
+      window.close();
+      return true; // não inicializa o resto
+    }
+    return false;
+  })();
+
+  // Se chegou aqui, não é callback — inicializa normalmente
   document.getElementById('hts').textContent=TODAY.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
   DATA.rows=consolidate(OFFLINE); DATA.docs_map={};
   buildPills(); popSelects(); renderAll();
