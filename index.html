@@ -570,9 +570,10 @@ async function doLoginFromOverlay() {
     _pkceState    = randStr(32);
     const challenge = await sha256b64(_pkceVerifier);
 
-    // Salva verifier e state no localStorage para recuperar após redirect
+    // Salva no localStorage para o popup acessar após redirect
     localStorage.setItem('pkce_verifier', _pkceVerifier);
     localStorage.setItem('pkce_state',    _pkceState);
+    localStorage.removeItem('fidc_auth_result'); // limpa resultado anterior
 
     const params = new URLSearchParams({
       client_id:             CLIENT,
@@ -585,14 +586,13 @@ async function doLoginFromOverlay() {
       prompt:                'select_account',
     });
 
-    // Abre popup — o Azure vai redirecionar de volta para REDIRECT com ?code=
-    const w = 520, h = 640;
+    const w = 520, h = 620;
     const left = Math.round(screen.width/2 - w/2);
     const top  = Math.round(screen.height/2 - h/2);
     _popupWin = window.open(
       AUTH_URL + '?' + params.toString(),
-      'msauth_popup',
-      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`
+      'msauth',
+      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`
     );
 
     if (!_popupWin) {
@@ -600,27 +600,41 @@ async function doLoginFromOverlay() {
       return;
     }
 
-    // Aguarda sessão aparecer no localStorage (o popup faz token exchange e salva)
+    // Monitora localStorage para resultado do auth (evita COOP/SecurityError)
     await new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         clearInterval(poll);
+        localStorage.removeItem('fidc_auth_result');
         reject(new Error('Login expirou. Tente novamente.'));
-      }, 180000);
+      }, 120000);
 
       const poll = setInterval(() => {
-        const s = loadSession();
-        if (s && tokenValid(s)) {
+        // Verifica resultado no localStorage
+        const result = localStorage.getItem('fidc_auth_result');
+        if (result) {
           clearInterval(poll);
           clearTimeout(timeout);
-          resolve(s);
+          localStorage.removeItem('fidc_auth_result');
+          try {
+            const data = JSON.parse(result);
+            if (data.error) { reject(new Error(data.error)); return; }
+            tok = data.tok;
+            saveSession(data);
+            onLogin({ name: data.name, username: data.email });
+            resolve();
+          } catch(e) { reject(e); }
+          return;
         }
-      }, 500);
+        // Verifica se popup fechou sem completar
+        try {
+          if (_popupWin && _popupWin.closed) {
+            clearInterval(poll);
+            clearTimeout(timeout);
+            reject(new Error('cancelled'));
+          }
+        } catch(e) { /* COOP — ignora */ }
+      }, 400);
     });
-
-    // Sessão salva pelo popup — carrega
-    const session = loadSession();
-    tok = session.tok;
-    onLogin({ name: session.name, username: session.email });
 
   } catch(e) {
     document.getElementById('loLoading').style.display = 'none';
@@ -652,12 +666,19 @@ function validateDomain(acc) {
 }
 
 function onLogin(acc) {
-  document.getElementById('loginBtn').style.display='none';
-  document.getElementById('logoutBtn').style.display='flex';
-  const nm = acc.name||acc.username||'Usuário';
+  if (!validateDomain(acc)) {
+    clearSession();
+    showLoginError('Acesso permitido apenas para contas @lfsfinancial.com.br');
+    return;
+  }
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('offB').style.display = 'none';
+  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'flex';
+  const nm = acc.name || acc.username || 'Usuário';
   document.getElementById('authNm').textContent = nm.split(' ')[0];
-  document.getElementById('authAv').textContent = nm[0].toUpperCase();
-  document.getElementById('authPill').style.display='flex';
+  document.getElementById('authAv').textContent = (nm[0] || '?').toUpperCase();
+  document.getElementById('authPill').style.display = 'flex';
   syncData();
 }
 function showLoginOverlay() {
@@ -695,51 +716,59 @@ async function gfetch(path, opts={}) {
 async function resolveWB() {
   if(wbDrive && wbItem) return;
 
-  const USER = 'administrador@lfsfinancial.com.br';
-
-  // Estratégia 1: /users/{upn}/drive/items/{id}
+  // Estratégia 1: resolve via sharing URL (mais confiável para SharePoint)
+  const SHARE_ID = 'u!aHR0cHM6Ly9sZnNmaW5hbmNpYWxici1teS5zaGFyZXBvaW50LmNvbS86eDovci9wZXJzb25hbC9hZG1pbmlzdHJhZG9yX2xmc2ZpbmFuY2lhbF9jb21fYnIvX2xheW91dHMvMTUvRG9jLmFzcHg_c291cmNlZG9jPSU3QmEwZjQ4ODc1LTRhNDYtNDQxMi04ZDkyLWRkYzU3MzU3NGUyMCU3RCZhY3Rpb249ZWRpdA';
   try {
-    const item = await gfetch('/users/' + encodeURIComponent(USER) + '/drive/items/' + FILE_ID);
-    wbDrive = item.parentReference?.driveId || null;
-    wbItem  = item.id;
-    console.log('resolveWB OK via /users/drive');
-    return;
+    const item = await gfetch('/shares/' + SHARE_ID + '/driveItem');
+    wbDrive = item.parentReference?.driveId || item.remoteItem?.parentReference?.driveId || null;
+    wbItem  = item.id || item.remoteItem?.id;
+    if (wbDrive && wbItem) {
+      console.log('resolveWB OK via sharing URL:', wbDrive, wbItem);
+      return;
+    }
+  } catch(e) { console.warn('resolveWB /shares:', e.message); }
+
+  // Estratégia 2: OneDrive pessoal do administrador via UPN
+  try {
+    const USER = 'administrador@lfsfinancial.com.br';
+    const drive = await gfetch('/users/' + encodeURIComponent(USER) + '/drive');
+    wbDrive = drive.id;
+    // Busca pelo nome do arquivo
+    const search = await gfetch('/drives/' + drive.id + '/root/search(q='Controle%20Gerentes%20FIDC')');
+    const found = (search.value || []).find(f => f.name && f.name.toLowerCase().includes('controle'));
+    if (found) {
+      wbItem = found.id;
+      console.log('resolveWB OK via search:', found.name, found.id);
+      return;
+    }
   } catch(e) { console.warn('resolveWB /users/drive:', e.message); }
 
-  // Estratégia 2: /me/drive/items/{id} (se o usuário logado É o administrador)
+  // Estratégia 3: site do SharePoint pessoal
   try {
-    const item = await gfetch('/me/drive/items/' + FILE_ID);
-    wbDrive = item.parentReference?.driveId || null;
-    wbItem  = item.id;
-    console.log('resolveWB OK via /me/drive');
-    return;
-  } catch(e) { console.warn('resolveWB /me/drive:', e.message); }
-
-  // Estratégia 3: /drives via site do SharePoint pessoal
-  try {
-    const hostname = 'lfsfinancialbr-my.sharepoint.com';
-    const sitePath = '/personal/administrador_lfsfinancial_com_br';
-    const site = await gfetch('/sites/' + hostname + ':' + sitePath);
+    const site = await gfetch('/sites/lfsfinancialbr-my.sharepoint.com:/personal/administrador_lfsfinancial_com_br');
     const drives = await gfetch('/sites/' + site.id + '/drives');
     for (const drive of (drives.value || [])) {
       try {
-        const item = await gfetch('/drives/' + drive.id + '/items/' + FILE_ID);
-        wbDrive = drive.id;
-        wbItem  = item.id;
-        console.log('resolveWB OK via SharePoint site drive:', drive.id);
-        return;
+        const search = await gfetch('/drives/' + drive.id + '/root/search(q='FIDC')');
+        const found = (search.value || []).find(f => f.file && f.name.toLowerCase().includes('fidc'));
+        if (found) {
+          wbDrive = drive.id;
+          wbItem  = found.id;
+          console.log('resolveWB OK via SharePoint search:', found.name);
+          return;
+        }
       } catch(e) {}
     }
   } catch(e) { console.warn('resolveWB SharePoint site:', e.message); }
 
-  // Fallback: tenta direto
-  console.warn('resolveWB: usando fallback direto');
+  // Último recurso: usa FILE_ID diretamente no drive do usuário logado
+  console.warn('resolveWB: fallback final');
   wbDrive = null;
   wbItem  = FILE_ID;
 }
 
 
-async function gfetch(path, opts={}) {
+) {
   if(!tok) throw new Error('Não autenticado');
   const r = await fetch('https://graph.microsoft.com/v1.0'+path, {
     ...opts,
@@ -1356,38 +1385,34 @@ const OFFLINE=[{"cliente":"Cinafe Comercio E Industria De Aco E Ferro Ltda","res
 // INIT
 // ════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
-  // Se esta página carregou com ?code= é o callback OAuth2 (dentro do popup)
+  // Se esta página carregou com ?code= é o callback OAuth2 (popup ou redirect)
   (async function checkAuthCallback() {
-    const params   = new URLSearchParams(window.location.search);
-    const code     = params.get('code');
-    const state    = params.get('state');
-    const error    = params.get('error');
-    const errDesc  = params.get('error_description');
+    const params  = new URLSearchParams(window.location.search);
+    const code    = params.get('code');
+    const state   = params.get('state');
+    const error   = params.get('error');
 
-    if (!code && !error) return; // não é callback, inicializa normalmente
+    if (!code && !error) return; // não é callback
 
-    // Limpa URL para não reprocessar
+    // Limpa URL
     history.replaceState({}, document.title, window.location.pathname);
 
     if (error) {
-      console.error('Auth error:', error, errDesc);
-      // Se estiver num popup, apenas fecha — pai vai fazer timeout e mostrar erro
-      if (window.opener) { window.close(); return; }
+      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: params.get('error_description') || error }));
+      if (window.opener || window.name === 'msauth') window.close();
       return;
     }
 
-    // Recupera verifier salvo antes de abrir o popup
-    const verifier = localStorage.getItem('pkce_verifier');
+    const verifier   = localStorage.getItem('pkce_verifier');
     const savedState = localStorage.getItem('pkce_state');
 
     if (state !== savedState) {
-      console.error('State mismatch');
-      if (window.opener) window.close();
+      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: 'State inválido — tente novamente.' }));
+      if (window.opener || window.name === 'msauth') window.close();
       return;
     }
 
     try {
-      // Faz token exchange
       const tokenResp = await fetch(
         'https://login.microsoftonline.com/' + CFG.tenantId + '/oauth2/v2.0/token',
         {
@@ -1402,41 +1427,45 @@ document.addEventListener('DOMContentLoaded',()=>{
           }),
         }
       );
-
       const tokenData = await tokenResp.json();
-      if (!tokenResp.ok) throw new Error(tokenData.error_description || 'Token error');
+      if (!tokenResp.ok) throw new Error(tokenData.error_description || 'Erro ao obter token');
 
-      // Busca perfil
       const meResp = await fetch('https://graph.microsoft.com/v1.0/me', {
         headers: { Authorization: 'Bearer ' + tokenData.access_token }
       });
-      const me = meResp.ok ? await meResp.json() : {};
+      const me    = meResp.ok ? await meResp.json() : {};
       const email = me.mail || me.userPrincipalName || '';
       const name  = me.displayName || email;
 
-      // Salva sessão — a janela pai detecta via polling e carrega
-      localStorage.setItem('fidc_session', JSON.stringify({
+      const session = {
         tok:     tokenData.access_token,
         refresh: tokenData.refresh_token || '',
         exp:     Date.now() + (tokenData.expires_in * 1000),
         name, email,
-      }));
+      };
+
       localStorage.removeItem('pkce_verifier');
       localStorage.removeItem('pkce_state');
+
+      // Sinaliza para a janela pai via localStorage
+      localStorage.setItem('fidc_auth_result', JSON.stringify(session));
+      // Também salva a sessão para próximas visitas
+      localStorage.setItem('fidc_session', JSON.stringify(session));
+
     } catch(e) {
-      console.error('Token exchange error:', e);
+      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: e.message }));
     }
 
-    // Fecha popup se estiver num popup, senão redireciona para home
-    if (window.opener) {
-      window.close();
-    } else {
-      window.location.href = 'https://rayssa-fidc.github.io/Dash-Clientes/';
-    }
-    return; // para execução do resto
+    // Fecha popup ou redireciona
+    try { window.close(); } catch(e) {}
+    // Fallback se window.close() não funcionou (não é popup)
+    setTimeout(() => {
+      if (!window.closed) window.location.href = 'https://rayssa-fidc.github.io/Dash-Clientes/';
+    }, 500);
+    return;
   })();
 
-  // Se chegou aqui, não é callback — inicializa normalmente
+    // Se chegou aqui, não é callback — inicializa normalmente
   document.getElementById('hts').textContent=TODAY.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
   DATA.rows=consolidate(OFFLINE); DATA.docs_map={};
   buildPills(); popSelects(); renderAll();
