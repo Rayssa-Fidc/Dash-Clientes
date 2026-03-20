@@ -1,1567 +1,3133 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8"/>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 <title>Dashboard FIDC — LFS Financial Advisory</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+
 <style>
+
 *{box-sizing:border-box;margin:0;padding:0;}
+
 :root{
-  --or:#E8621A;--or2:#f07540;--or-dim:rgba(232,98,26,.1);
-  --nav:#1C1814;--tx:#2a2218;--mu:#7a6e5f;--bd:rgba(0,0,0,.08);
-  --wh:#fff;--bg:#F4F1EC;
-  --gn:#1E6B43;--gn-dim:rgba(30,107,67,.1);
-  --rd:#c0392b;--rd-dim:rgba(192,57,43,.1);
-  --go:#C9962A;--go-dim:rgba(201,150,42,.12);
-  --bl:#1a5276;--bl-dim:rgba(26,82,118,.1);
-  --ye:#b7950b;--ye-dim:rgba(183,149,11,.12);
-  --sh:0 4px 24px rgba(0,0,0,.08);--sh2:0 16px 48px rgba(0,0,0,.16);
+
+  --or:#E8621A;--or2:#f07540;--or-dim:rgba(232,98,26,.1);
+
+  --nav:#1C1814;--tx:#2a2218;--mu:#7a6e5f;--bd:rgba(0,0,0,.08);
+
+  --wh:#fff;--bg:#F4F1EC;
+
+  --gn:#1E6B43;--gn-dim:rgba(30,107,67,.1);
+
+  --rd:#c0392b;--rd-dim:rgba(192,57,43,.1);
+
+  --go:#C9962A;--go-dim:rgba(201,150,42,.12);
+
+  --bl:#1a5276;--bl-dim:rgba(26,82,118,.1);
+
+  --ye:#b7950b;--ye-dim:rgba(183,149,11,.12);
+
+  --sh:0 4px 24px rgba(0,0,0,.08);--sh2:0 16px 48px rgba(0,0,0,.16);
+
 }
+
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;}
+
 button,input,select,textarea{font-family:'DM Sans',sans-serif;}
 
+
+
 /* HEADER */
+
 .header{background:var(--nav);padding:13px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+
 .brand{display:flex;align-items:center;gap:12px;}
+
 .brand-sq{width:40px;height:40px;background:var(--or);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:#fff;font-size:13px;}
+
 .brand-name{font-family:'Syne',sans-serif;color:#fff;font-size:16px;font-weight:700;}
+
 .brand-sub{color:rgba(255,255,255,.4);font-size:11px;}
+
 .hright{display:flex;align-items:center;gap:9px;}
+
 .auth-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border-radius:8px;padding:6px 12px;}
+
 .auth-av{width:26px;height:26px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+
 .auth-nm{color:rgba(255,255,255,.75);font-size:12px;}
+
 .hbtn{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:6px;}
+
 .hbtn:hover{background:rgba(255,255,255,.18);}
+
 .hbtn.accent{background:var(--or);color:#fff;}
+
 .hbtn.accent:hover{background:var(--or2);}
+
 .hbtn .ico{display:inline-block;}
+
 .hbtn.loading .ico{animation:spin .7s linear infinite;}
+
 @keyframes spin{to{transform:rotate(360deg);}}
+
 .hts{color:rgba(255,255,255,.3);font-size:10px;}
 
+
+
 /* FILTER */
+
 .fbar{background:var(--wh);border-bottom:1px solid var(--bd);padding:13px 32px;}
+
 .fb-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--nav);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+
 .mo-tag{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;background:var(--or);color:#fff;padding:3px 11px;border-radius:20px;}
+
 .fb-row{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;}
+
 .fb-grp{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
 .fb-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--mu);white-space:nowrap;}
+
 .pills{display:flex;gap:5px;flex-wrap:wrap;}
+
 .pill{padding:5px 12px;border-radius:20px;border:1.5px solid rgba(0,0,0,.14);background:#fff;font-size:12px;font-weight:500;color:var(--mu);cursor:pointer;transition:all .14s;white-space:nowrap;}
+
 .pill:hover{border-color:var(--or);color:var(--or);}
+
 .pill.p-mo{background:var(--or);border-color:var(--or);color:#fff;}
+
 .pill.p-ge{color:#fff;border-color:transparent;}
 
+
+
 /* TABS */
+
 .tabs{background:var(--wh);border-bottom:2px solid var(--bd);padding:0 32px;display:flex;}
+
 .tab{padding:12px 20px;font-size:13px;font-weight:500;color:var(--mu);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .16s;white-space:nowrap;}
+
 .tab:hover{color:var(--nav);}
+
 .tab.active{color:var(--or);border-bottom-color:var(--or);font-weight:600;}
 
+
+
 /* PAGE */
+
 .page{display:none;padding:24px 32px;}
+
 .page.active{display:block;}
 
+
+
 /* BLOCK */
+
 .block{background:var(--wh);border-radius:12px;border:1px solid var(--bd);overflow:hidden;margin-bottom:22px;box-shadow:var(--sh);}
+
 .bhead{padding:12px 18px;background:var(--nav);display:flex;align-items:center;justify-content:space-between;}
+
 .btitle{color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+
 .bhint{color:rgba(255,255,255,.35);font-size:11px;}
 
+
+
 /* TABLE */
+
 table.dt{width:100%;border-collapse:collapse;}
+
 table.dt thead tr{background:rgba(0,0,0,.03);}
+
 table.dt thead th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;border-bottom:1px solid var(--bd);}
+
 table.dt tbody tr{border-bottom:1px solid var(--bd);transition:background .1s;}
+
 table.dt tbody tr:hover{background:rgba(232,98,26,.03);}
+
 table.dt tbody tr:last-child{border-bottom:none;}
+
 table.dt tbody td{padding:9px 14px;font-size:13px;}
 
+
+
 /* BADGES */
+
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+
 .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
 .b-gn{background:var(--gn-dim);color:var(--gn);}
+
 .b-or{background:var(--or-dim);color:var(--or);}
+
 .b-rd{background:var(--rd-dim);color:var(--rd);}
+
 .b-go{background:var(--go-dim);color:var(--go);}
+
 .b-bl{background:var(--bl-dim);color:var(--bl);}
+
 .b-mu{background:rgba(0,0,0,.06);color:var(--mu);}
 
+
+
 /* ALERTA */
+
 .alerta{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;}
+
 .alerta .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
 .al-ativo .dot{background:var(--gn);} .al-ativo{color:var(--gn);}
+
 .al-and .dot{background:var(--or);} .al-and{color:var(--or);}
+
 .al-inativo .dot{background:var(--rd);} .al-inativo{color:var(--rd);}
+
 .al-sr .dot{background:var(--ye);} .al-sr{color:var(--ye);}
+
 .al-ver .dot{background:var(--bl);} .al-ver{color:var(--bl);}
 
+
+
 /* TOOLBAR */
+
 .toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 14px;border-bottom:1px solid var(--bd);}
+
 .srch{position:relative;display:inline-block;}
+
 .srch input{padding:7px 10px 7px 28px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;background:var(--bg);color:var(--tx);outline:none;min-width:190px;}
+
 .srch input:focus{border-color:var(--or);}
+
 .srch::before{content:'⌕';position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--mu);pointer-events:none;}
+
 .sel{padding:7px 11px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;background:var(--bg);color:var(--tx);outline:none;cursor:pointer;}
+
 .sel:focus{border-color:var(--or);}
+
 .cnt{margin-left:auto;font-size:12px;color:var(--mu);}
+
 .tbtn{padding:7px 13px;border-radius:8px;border:1.5px solid var(--bd);background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .14s;color:var(--tx);}
+
 .tbtn:hover{border-color:var(--or);color:var(--or);}
+
 .tbtn.accent{background:var(--or);border-color:var(--or);color:#fff;}
+
 .tbtn.accent:hover{background:var(--or2);}
 
+
+
 /* CHIPS */
+
 .chip-gn{background:var(--gn-dim);color:var(--gn);font-weight:700;border-radius:5px;padding:2px 8px;display:inline-block;text-align:center;font-size:12px;}
+
 .chip-rd{background:var(--rd-dim);color:var(--rd);font-weight:700;border-radius:5px;padding:2px 8px;display:inline-block;text-align:center;font-size:12px;}
+
 .chip-or{background:var(--or-dim);color:var(--or);font-weight:700;border-radius:5px;padding:2px 8px;display:inline-block;text-align:center;font-size:12px;}
 
+
+
 /* BOTTOM GRID */
+
 .bgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;}
+
 .iblock{background:var(--wh);border-radius:12px;border:1px solid var(--bd);padding:18px;box-shadow:var(--sh);}
+
 .ibt{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--nav);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd);}
+
 .funil-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.04);}
+
 .funil-row:last-child{border-bottom:none;}
+
 .fl{font-size:12px;color:var(--tx);}
+
 .fd{font-size:11px;color:var(--mu);}
+
 .fv{font-size:13px;font-weight:700;color:var(--nav);text-align:right;}
+
 .efrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.04);}
+
 .efrow:last-child{border-bottom:none;}
+
 .efn{font-size:13px;font-weight:600;}
+
 .efd{font-size:13px;font-weight:700;color:var(--or);}
 
+
+
 /* POR GERENTE */
+
 .ge-sec{margin-bottom:26px;}
+
 .ge-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+
 .ge-av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;}
+
 .ge-nm{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--nav);}
+
 .ge-stats{display:flex;gap:9px;margin-left:auto;flex-wrap:wrap;}
+
 .gss{text-align:center;background:var(--wh);border:1px solid var(--bd);border-radius:8px;padding:4px 11px;}
+
 .gss-v{font-size:15px;font-weight:800;}
+
 .gss-l{font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--mu);}
 
+
+
 /* DOCS */
+
 .doc-ok{background:var(--gn-dim);color:var(--gn);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;}
+
 .doc-pend{background:var(--rd-dim);color:var(--rd);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;}
+
 .doc-grid{display:flex;flex-wrap:wrap;gap:4px;}
+
 .docs-leg{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+
 .leg-i{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu);}
 
+
+
 /* MODAL */
+
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);}
+
 .mbg.open{display:flex;}
+
 .mbox{background:#fff;border-radius:16px;max-width:660px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--sh2);animation:msl .2s ease;position:relative;}
+
 @keyframes msl{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+
 .mhead{padding:18px 22px 12px;border-bottom:1px solid var(--bd);display:flex;gap:12px;align-items:flex-start;position:sticky;top:0;background:#fff;z-index:2;}
+
 .mclose{margin-left:auto;background:none;border:none;font-size:18px;cursor:pointer;color:var(--mu);padding:2px 6px;border-radius:5px;}
+
 .mclose:hover{background:rgba(0,0,0,.06);}
+
 .mbody{padding:18px 22px;}
+
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+
 .mf{background:var(--bg);border-radius:8px;padding:10px 12px;}
+
 .mfl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--mu);margin-bottom:3px;}
+
 .mfv{font-size:13px;font-weight:500;}
+
 .macts{display:flex;gap:9px;justify-content:flex-end;padding:12px 22px;border-top:1px solid var(--bd);position:sticky;bottom:0;background:#fff;z-index:2;}
+
 .mabtn{padding:9px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--bd);background:#fff;color:var(--tx);transition:all .14s;}
+
 .mabtn:hover{border-color:var(--or);color:var(--or);}
+
 .mabtn.save{background:var(--or);border-color:var(--or);color:#fff;}
+
 .mabtn.save:hover{background:var(--or2);}
+
 .mabtn.del{border-color:var(--rd-dim);color:var(--rd);background:var(--rd-dim);}
+
 .mabtn.del:hover{background:var(--rd);color:#fff;}
+
 .mabtn:disabled{opacity:.5;cursor:not-allowed;}
 
+
+
 /* EDIT FORM */
+
 .ef-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+
 .ef-row.full{grid-template-columns:1fr;}
+
 .ef-g{display:flex;flex-direction:column;gap:4px;}
+
 .ef-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);}
+
 .ef-i{padding:9px 12px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;background:#fff;color:var(--tx);outline:none;}
+
 .ef-i:focus{border-color:var(--or);}
+
 .grupo-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg);border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;user-select:none;font-size:13px;color:var(--tx);transition:border-color .15s,background .15s;}
+
 .grupo-toggle:hover{border-color:var(--or);}
+
 .grupo-toggle.active{border-color:var(--or);background:#fff8f0;}
+
 .grupo-toggle input[type=checkbox]{accent-color:var(--or);width:16px;height:16px;cursor:pointer;}
+
 .grupo-rows{margin-top:4px;border-left:3px solid var(--or);padding-left:12px;display:flex;flex-direction:column;gap:8px;}
+
 .grupo-row-item{display:flex;align-items:center;gap:6px;}
+
 .grupo-row-item input{flex:1;}
+
 .grupo-row-item button{background:none;border:none;cursor:pointer;font-size:16px;color:#999;padding:2px 4px;line-height:1;}
+
 .grupo-row-item button:hover{color:#e74c3c;}
+
 .grupo-add{font-size:12px;color:var(--or);background:none;border:none;cursor:pointer;padding:4px 0;font-weight:600;text-decoration:underline;}
+
 .grupo-add:hover{opacity:.8;}
+
 textarea.ef-i{resize:vertical;}
 
+
+
 /* DOCS CHECKLIST */
+
 .dclist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+
 .dci{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;border:1.5px solid var(--bd);cursor:pointer;transition:all .14s;}
+
 .dci:hover{border-color:var(--or);}
+
 .dci.on{background:var(--gn-dim);border-color:var(--gn);}
+
 .dccb{width:16px;height:16px;border-radius:4px;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;transition:all .14s;}
+
 .dci.on .dccb{background:var(--gn);border-color:var(--gn);color:#fff;}
+
 .dcn{font-size:12px;font-weight:500;}
 
+
+
 /* SAVING OVERLAY */
+
 .sov{position:absolute;inset:0;background:rgba(255,255,255,.88);display:none;align-items:center;justify-content:center;border-radius:16px;z-index:10;font-weight:600;color:var(--or);gap:8px;font-size:14px;}
+
 .sov.show{display:flex;}
 
+
+
 /* TOAST */
+
 #toast{position:fixed;bottom:26px;right:26px;z-index:9000;display:flex;flex-direction:column;gap:7px;}
+
 .ti{background:var(--nav);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--sh2);animation:tsl .3s ease;display:flex;align-items:center;gap:9px;min-width:250px;}
+
 @keyframes tsl{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:none;}}
+
 .ti.ok::before{content:'✓';color:var(--gn);font-weight:800;}
+
 .ti.err::before{content:'✕';color:var(--rd);font-weight:800;}
+
 .ti.inf::before{content:'↻';color:var(--or);font-weight:800;}
 
+
+
 /* LOAD BAR */
+
 #lb{position:fixed;top:0;left:0;height:3px;background:var(--or);width:0%;transition:width .3s;z-index:9999;border-radius:0 2px 2px 0;}
 
+
+
 /* BANNERS */
+
 .offline-b{background:var(--go-dim);border:1.5px dashed var(--go);border-radius:10px;padding:10px 15px;margin-bottom:16px;font-size:13px;color:var(--ye);display:none;align-items:center;gap:10px;}
+
 .cfg-b{background:var(--rd-dim);border:1.5px dashed var(--rd);border-radius:10px;padding:10px 15px;margin-bottom:16px;font-size:13px;color:var(--rd);display:none;align-items:center;gap:10px;}
 
+
+
 /* FILTER SELECTS */
+
 .fb-sel{
-  padding:6px 30px 6px 10px;border:1.5px solid var(--bd);border-radius:8px;
-  font-size:13px;background:#fff;color:var(--tx);outline:none;cursor:pointer;
-  appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a6e5f'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center;
-  font-family:'DM Sans',sans-serif;
-  transition:border-color .15s;
-  min-width:130px;
+
+  padding:6px 30px 6px 10px;border:1.5px solid var(--bd);border-radius:8px;
+
+  font-size:13px;background:#fff;color:var(--tx);outline:none;cursor:pointer;
+
+  appearance:none;-webkit-appearance:none;
+
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a6e5f'/%3E%3C/svg%3E");
+
+  background-repeat:no-repeat;background-position:right 10px center;
+
+  font-family:'DM Sans',sans-serif;
+
+  transition:border-color .15s;
+
+  min-width:130px;
+
 }
+
 .fb-sel:focus{border-color:var(--or);}
+
 .fb-sel.has-value{border-color:var(--or);color:var(--or);font-weight:600;}
 
+
+
 /* GROUP TAG */
+
 .gtag{font-size:10px;background:var(--bl-dim);color:var(--bl);padding:2px 7px;border-radius:10px;font-weight:700;cursor:help;margin-left:4px;}
 
+
+
 /* PRAZO */
+
 .pv{color:var(--rd);font-size:12px;font-weight:600;}
+
 .pa{color:var(--ye);font-size:12px;font-weight:600;}
+
 .pk{font-size:12px;color:var(--mu);}
 
+
+
 footer{text-align:center;padding:16px;color:var(--mu);font-size:12px;border-top:1px solid var(--bd);margin-top:14px;}
+
 @media(max-width:768px){
-  .header,.fbar,.tabs,.page{padding-left:16px;padding-right:16px;}
-  .bgrid{grid-template-columns:1fr;}
-  .mgrid,.ef-row,.dclist{grid-template-columns:1fr;}
-  table.dt thead th:nth-child(n+5){display:none;}
-  table.dt tbody td:nth-child(n+5){display:none;}
+
+  .header,.fbar,.tabs,.page{padding-left:16px;padding-right:16px;}
+
+  .bgrid{grid-template-columns:1fr;}
+
+  .mgrid,.ef-row,.dclist{grid-template-columns:1fr;}
+
+  table.dt thead th:nth-child(n+5){display:none;}
+
+  table.dt tbody td:nth-child(n+5){display:none;}
+
 }
+
+
 
 /* ── LOGIN OVERLAY ──────────────────────── */
+
 #loginOverlay{
-  position:fixed;inset:0;z-index:9999;display:flex;
-  background:var(--nav);
-  align-items:center;justify-content:center;
+
+  position:fixed;inset:0;z-index:9999;display:flex;
+
+  background:var(--nav);
+
+  align-items:center;justify-content:center;
+
 }
+
 #loginOverlay .lo-bg{
-  position:absolute;inset:0;overflow:hidden;pointer-events:none;
+
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;
+
 }
+
 #loginOverlay .lo-circle{
-  position:absolute;border-radius:50%;opacity:.06;background:var(--or);
+
+  position:absolute;border-radius:50%;opacity:.06;background:var(--or);
+
 }
+
 #loginOverlay .lo-box{
-  position:relative;z-index:2;
-  background:#fff;border-radius:20px;
-  max-width:380px;width:calc(100% - 40px);padding:48px 40px 40px;
-  box-shadow:0 40px 80px rgba(0,0,0,.4);
-  display:flex;flex-direction:column;align-items:center;text-align:center;
+
+  position:relative;z-index:2;
+
+  background:#fff;border-radius:20px;
+
+  max-width:380px;width:calc(100% - 40px);padding:48px 40px 40px;
+
+  box-shadow:0 40px 80px rgba(0,0,0,.4);
+
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+
 }
+
 .lo-badge{
-  background:var(--or);color:#fff;
-  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-  padding:5px 14px;border-radius:20px;margin-bottom:24px;
+
+  background:var(--or);color:#fff;
+
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+
+  padding:5px 14px;border-radius:20px;margin-bottom:24px;
+
 }
+
 .lo-title{
-  font-size:22px;font-weight:600;color:var(--nav);
-  margin-bottom:6px;letter-spacing:-.3px;
-  font-family:'DM Sans',sans-serif;
+
+  font-size:22px;font-weight:600;color:var(--nav);
+
+  margin-bottom:6px;letter-spacing:-.3px;
+
+  font-family:'DM Sans',sans-serif;
+
 }
+
 .lo-sub{font-size:13px;color:var(--mu);margin-bottom:32px;line-height:1.5;}
+
 .lo-btn{
-  width:100%;padding:14px;
-  background:var(--or);color:#fff;border:none;
-  border-radius:10px;font-size:14px;font-weight:600;
-  cursor:pointer;transition:all .18s;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  box-shadow:0 4px 16px rgba(232,98,26,.28);
-  font-family:'DM Sans',sans-serif;
+
+  width:100%;padding:14px;
+
+  background:var(--or);color:#fff;border:none;
+
+  border-radius:10px;font-size:14px;font-weight:600;
+
+  cursor:pointer;transition:all .18s;
+
+  display:flex;align-items:center;justify-content:center;gap:10px;
+
+  box-shadow:0 4px 16px rgba(232,98,26,.28);
+
+  font-family:'DM Sans',sans-serif;
+
 }
+
 .lo-btn:hover{background:var(--or2);transform:translateY(-1px);}
+
 .lo-btn:active{transform:translateY(0);}
+
 .lo-remember{
-  display:flex;align-items:center;gap:8px;
-  margin-top:14px;cursor:pointer;
-  font-size:13px;color:var(--mu);user-select:none;
+
+  display:flex;align-items:center;gap:8px;
+
+  margin-top:14px;cursor:pointer;
+
+  font-size:13px;color:var(--mu);user-select:none;
+
 }
+
 .lo-remember input{width:15px;height:15px;accent-color:var(--or);cursor:pointer;}
+
 .lo-remember:hover{color:var(--tx);}
+
 .lo-divider{width:100%;height:1px;background:var(--bd);margin:24px 0;}
+
 .lo-footer{font-size:11px;color:var(--mu);opacity:.6;line-height:1.6;}
+
 .lo-loading{
-  display:none;flex-direction:column;align-items:center;gap:12px;padding:8px 0;
+
+  display:none;flex-direction:column;align-items:center;gap:12px;padding:8px 0;
+
 }
+
 .lo-loading .spin-ring{
-  width:32px;height:32px;border-radius:50%;
-  border:3px solid var(--bd);border-top-color:var(--or);
-  animation:spin .8s linear infinite;
+
+  width:32px;height:32px;border-radius:50%;
+
+  border:3px solid var(--bd);border-top-color:var(--or);
+
+  animation:spin .8s linear infinite;
+
 }
+
 .lo-loading p{font-size:13px;color:var(--mu);}
+
 </style>
+
 </head>
+
 <body>
+
 <div id="lb"></div>
+
 <div id="toast"></div>
 
+
+
 <!-- LOGIN OVERLAY -->
+
 <div id="loginOverlay">
-  <div class="lo-bg">
-    <div class="lo-circle" style="width:600px;height:600px;top:-200px;right:-150px;"></div>
-    <div class="lo-circle" style="width:400px;height:400px;bottom:-150px;left:-100px;"></div>
-    <div class="lo-circle" style="width:200px;height:200px;top:40%;left:20%;background:var(--go);"></div>
-  </div>
-  <div class="lo-box">
-    <div class="lo-badge">LFS Financial Advisory</div>
-    <div class="lo-title">Controle Operacional FIDC</div>
-    <div class="lo-sub">Entre com sua conta corporativa<br>para acessar o dashboard.</div>
 
-    <div id="loError" style="display:none;width:100%;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:9px;padding:11px 14px;font-size:12px;color:#b91c1c;line-height:1.55;margin-bottom:12px;text-align:left"></div>
-    <div id="loLoginArea" style="width:100%">
-      <button class="lo-btn" id="loBtnLogin" onclick="doLoginFromOverlay()">
-        <svg width="18" height="18" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
-        Entrar com Microsoft
-      </button>
-      <label class="lo-remember">
-        <input type="checkbox" id="loRemember" checked/>
-        Manter login neste dispositivo
-      </label>
-    </div>
+  <div class="lo-bg">
 
-    <div class="lo-loading" id="loLoading">
-      <div class="spin-ring"></div>
-      <p>Abrindo janela de login…</p>
-    </div>
+    <div class="lo-circle" style="width:600px;height:600px;top:-200px;right:-150px;"></div>
 
-    <div class="lo-divider"></div>
-    <div class="lo-footer">
-      Acesso permitido apenas para contas @lfsfinancial.com.br
-    </div>
-  </div>
+    <div class="lo-circle" style="width:400px;height:400px;bottom:-150px;left:-100px;"></div>
+
+    <div class="lo-circle" style="width:200px;height:200px;top:40%;left:20%;background:var(--go);"></div>
+
+  </div>
+
+  <div class="lo-box">
+
+    <div class="lo-badge">LFS Financial Advisory</div>
+
+    <div class="lo-title">Controle Operacional FIDC</div>
+
+    <div class="lo-sub">Entre com sua conta corporativa<br>para acessar o dashboard.</div>
+
+
+
+    <div id="loError" style="display:none;width:100%;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:9px;padding:11px 14px;font-size:12px;color:#b91c1c;line-height:1.55;margin-bottom:12px;text-align:left"></div>
+
+    <div id="loLoginArea" style="width:100%">
+
+      <button class="lo-btn" id="loBtnLogin" onclick="doLoginFromOverlay()">
+
+        <svg width="18" height="18" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
+
+        Entrar com Microsoft
+
+      </button>
+
+      <label class="lo-remember">
+
+        <input type="checkbox" id="loRemember" checked/>
+
+        Manter login neste dispositivo
+
+      </label>
+
+    </div>
+
+
+
+    <div class="lo-loading" id="loLoading">
+
+      <div class="spin-ring"></div>
+
+      <p>Abrindo janela de login…</p>
+
+    </div>
+
+
+
+    <div class="lo-divider"></div>
+
+    <div class="lo-footer">
+
+      Acesso permitido apenas para contas @lfsfinancial.com.br
+
+    </div>
+
+  </div>
+
 </div>
+
+
 
 <!-- HEADER -->
+
 <div class="header">
-  <div class="brand">
-    <div class="brand-sq">LFS</div>
-    <div><div class="brand-name">LFS Financial Advisory</div><div class="brand-sub">Controle Operacional — FIDC</div></div>
-  </div>
-  <div class="hright">
-    <span class="hts" id="hts"></span>
-    <div class="auth-pill" id="authPill" style="display:none">
-      <div class="auth-av" id="authAv">?</div>
-      <span class="auth-nm" id="authNm">–</span>
-    </div>
-    <button class="hbtn" id="syncBtn" onclick="syncData()"><span class="ico">↻</span> Sincronizar</button>
-    <button class="hbtn accent" onclick="openNewModal()">+ Novo Cliente</button>
-    <button class="hbtn" id="loginBtn" onclick="doLogin()">🔑 Login Microsoft</button>
-    <button class="hbtn" id="logoutBtn" onclick="doLogout()" style="display:none">Sair</button>
-  </div>
+
+  <div class="brand">
+
+    <div class="brand-sq">LFS</div>
+
+    <div><div class="brand-name">LFS Financial Advisory</div><div class="brand-sub">Controle Operacional — FIDC</div></div>
+
+  </div>
+
+  <div class="hright">
+
+    <span class="hts" id="hts"></span>
+
+    <div class="auth-pill" id="authPill" style="display:none">
+
+      <div class="auth-av" id="authAv">?</div>
+
+      <span class="auth-nm" id="authNm">–</span>
+
+    </div>
+
+    <button class="hbtn" id="syncBtn" onclick="syncData()"><span class="ico">↻</span> Sincronizar</button>
+
+    <button class="hbtn accent" onclick="openNewModal()">+ Novo Cliente</button>
+
+    <button class="hbtn" id="loginBtn" onclick="doLogin()">🔑 Login Microsoft</button>
+
+    <button class="hbtn" id="logoutBtn" onclick="doLogout()" style="display:none">Sair</button>
+
+  </div>
+
 </div>
+
+
 
 <!-- FILTER BAR -->
+
 <div class="fbar">
-  <div class="fb-title">Dashboard de Controle — Gerentes <span class="mo-tag" id="moLbl">Todos</span></div>
-  <div class="fb-row">
-    <div class="fb-grp">
-      <span class="fb-lbl">Período</span>
-      <select class="fb-sel" id="selMes" onchange="onSelMes(this)">
-        <option value="todos">Todos os períodos</option>
-      </select>
-    </div>
-    <div class="fb-grp">
-      <span class="fb-lbl">Gerente</span>
-      <select class="fb-sel" id="selGe" onchange="onSelGe(this)">
-        <option value="todos">Todos os gerentes</option>
-      </select>
-    </div>
-  </div>
+
+  <div class="fb-title">Dashboard de Controle — Gerentes <span class="mo-tag" id="moLbl">Todos</span></div>
+
+  <div class="fb-row">
+
+    <div class="fb-grp">
+
+      <span class="fb-lbl">Período</span>
+
+      <select class="fb-sel" id="selMes" onchange="onSelMes(this)">
+
+        <option value="todos">Todos os períodos</option>
+
+      </select>
+
+    </div>
+
+    <div class="fb-grp">
+
+      <span class="fb-lbl">Gerente</span>
+
+      <select class="fb-sel" id="selGe" onchange="onSelGe(this)">
+
+        <option value="todos">Todos os gerentes</option>
+
+      </select>
+
+    </div>
+
+  </div>
+
 </div>
+
+
 
 <!-- TABS -->
+
 <div class="tabs">
-  <div class="tab active" onclick="showTab('visao')">📊 Visão Geral</div>
-  <div class="tab" onclick="showTab('gerente')">👤 Por Gerente</div>
-  <div class="tab" onclick="showTab('clientes')">📋 Clientes</div>
-  <div class="tab" onclick="showTab('docs')">📄 Documentos</div>
+
+  <div class="tab active" onclick="showTab('visao')">📊 Visão Geral</div>
+
+  <div class="tab" onclick="showTab('gerente')">👤 Por Gerente</div>
+
+  <div class="tab" onclick="showTab('clientes')">📋 Clientes</div>
+
+  <div class="tab" onclick="showTab('docs')">📄 Documentos</div>
+
 </div>
+
+
 
 <!-- VISÃO GERAL -->
-<div class="page active" id="tab-visao">
-  <div id="offB" class="offline-b" style="display:flex">⚠️ Dados offline — <strong style="margin:0 4px">faça login para sincronizar com a planilha.</strong> <button onclick="doLogin()" style="margin-left:10px;padding:6px 16px;background:var(--or);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">🔑 Login Microsoft</button></div>
 
-  <div class="block">
-    <div class="bhead"><span class="btitle" id="metasT">Resumo de Metas</span><span class="bhint" id="metasH">por semana</span></div>
-    <table class="dt"><thead id="metasTH"></thead><tbody id="metasTB"></tbody></table>
-  </div>
-  <div class="block">
-    <div class="bhead"><span class="btitle" id="detT">Detalhamento de Clientes</span></div>
-    <div class="toolbar">
-      <div class="srch"><input type="text" id="srchDet" placeholder="Buscar cliente…" oninput="renderDet(filtered())"/></div>
-      <select class="sel" id="selStDet" onchange="renderDet(filtered())">
-        <option value="">Todos os status</option>
-        <option>Finalizado</option><option>Contrato Pendente</option><option>Contrato e Documentos</option>
-        <option>Documento Pendente</option><option>Pausado</option><option>Declinado LFS</option>
-        <option>Declinado Cliente</option><option>Direcionado Crédito</option>
-      </select>
-      <select class="sel" id="selAlDet" onchange="renderDet(filtered())">
-        <option value="">Todos os alertas</option>
-        <option value="al-ativo">Ativo</option>
-        <option value="al-and">Em Andamento</option>
-        <option value="al-sr">Sem Retorno</option>
-        <option value="al-inativo">Inativo</option>
-      </select>
-      <div class="cnt" id="detCnt"></div>
-    </div>
-    <table class="dt">
-      <thead><tr><th>Cliente</th><th>Gerente</th><th>Status</th><th>Entrada</th><th>Alerta</th><th>Cobranças</th><th>Obs.</th><th></th></tr></thead>
-      <tbody id="detTB"></tbody>
-    </table>
-  </div>
-  <div class="bgrid">
-    <div class="iblock"><div class="ibt">Funil de Conversão</div><div id="funilB"></div></div>
-    <div class="iblock"><div class="ibt">Eficiência por Gerente</div><div id="eficB"></div></div>
-  </div>
+<div class="page active" id="tab-visao">
+
+  <div id="offB" class="offline-b" style="display:flex">⚠️ Dados offline — <strong style="margin:0 4px">faça login para sincronizar com a planilha.</strong> <button onclick="doLogin()" style="margin-left:10px;padding:6px 16px;background:var(--or);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">🔑 Login Microsoft</button></div>
+
+
+
+  <div class="block">
+
+    <div class="bhead"><span class="btitle" id="metasT">Resumo de Metas</span><span class="bhint" id="metasH">por semana</span></div>
+
+    <table class="dt"><thead id="metasTH"></thead><tbody id="metasTB"></tbody></table>
+
+  </div>
+
+  <div class="block">
+
+    <div class="bhead"><span class="btitle" id="detT">Detalhamento de Clientes</span></div>
+
+    <div class="toolbar">
+
+      <div class="srch"><input type="text" id="srchDet" placeholder="Buscar cliente…" oninput="renderDet(filtered())"/></div>
+
+      <select class="sel" id="selStDet" onchange="renderDet(filtered())">
+
+        <option value="">Todos os status</option>
+
+        <option>Finalizado</option><option>Contrato Pendente</option><option>Contrato e Documentos</option>
+
+        <option>Documento Pendente</option><option>Pausado</option><option>Declinado LFS</option>
+
+        <option>Declinado Cliente</option><option>Direcionado Crédito</option>
+
+      </select>
+
+      <select class="sel" id="selAlDet" onchange="renderDet(filtered())">
+
+        <option value="">Todos os alertas</option>
+
+        <option value="al-ativo">Ativo</option>
+
+        <option value="al-and">Em Andamento</option>
+
+        <option value="al-sr">Sem Retorno</option>
+
+        <option value="al-inativo">Inativo</option>
+
+      </select>
+
+      <div class="cnt" id="detCnt"></div>
+
+    </div>
+
+    <table class="dt">
+
+      <thead><tr><th>Cliente</th><th>Gerente</th><th>Status</th><th>Entrada</th><th>Alerta</th><th>Cobranças</th><th>Obs.</th><th></th></tr></thead>
+
+      <tbody id="detTB"></tbody>
+
+    </table>
+
+  </div>
+
+  <div class="bgrid">
+
+    <div class="iblock"><div class="ibt">Funil de Conversão</div><div id="funilB"></div></div>
+
+    <div class="iblock"><div class="ibt">Eficiência por Gerente</div><div id="eficB"></div></div>
+
+  </div>
+
 </div>
+
+
 
 <!-- POR GERENTE -->
+
 <div class="page" id="tab-gerente"><div id="geC"></div></div>
 
+
+
 <!-- CLIENTES -->
+
 <div class="page" id="tab-clientes">
-  <div class="block">
-    <div class="toolbar">
-      <div class="srch"><input type="text" id="srchCli" placeholder="Buscar cliente…" oninput="renderCli()"/></div>
-      <select class="sel" id="selStCli" onchange="renderCli()">
-        <option value="">Todos os status</option>
-        <option>Finalizado</option><option>Contrato Pendente</option><option>Contrato e Documentos</option>
-        <option>Documento Pendente</option><option>Pausado</option><option>Declinado LFS</option>
-        <option>Declinado Cliente</option><option>Direcionado Crédito</option>
-      </select>
-      <button class="tbtn accent" onclick="openNewModal()">+ Novo Cliente</button>
-      <div class="cnt" id="cliCnt"></div>
-    </div>
-    <table class="dt">
-      <thead><tr><th>Cliente</th><th>Gerente</th><th>Tipo</th><th>Status</th><th>Entrada</th><th>Assinado</th><th>Alerta</th><th>Prazo Doc.</th><th></th></tr></thead>
-      <tbody id="cliTB"></tbody>
-    </table>
-  </div>
+
+  <div class="block">
+
+    <div class="toolbar">
+
+      <div class="srch"><input type="text" id="srchCli" placeholder="Buscar cliente…" oninput="renderCli()"/></div>
+
+      <select class="sel" id="selStCli" onchange="renderCli()">
+
+        <option value="">Todos os status</option>
+
+        <option>Finalizado</option><option>Contrato Pendente</option><option>Contrato e Documentos</option>
+
+        <option>Documento Pendente</option><option>Pausado</option><option>Declinado LFS</option>
+
+        <option>Declinado Cliente</option><option>Direcionado Crédito</option>
+
+      </select>
+
+      <button class="tbtn accent" onclick="openNewModal()">+ Novo Cliente</button>
+
+      <div class="cnt" id="cliCnt"></div>
+
+    </div>
+
+    <table class="dt">
+
+      <thead><tr><th>Cliente</th><th>Gerente</th><th>Tipo</th><th>Status</th><th>Entrada</th><th>Assinado</th><th>Alerta</th><th>Prazo Doc.</th><th></th></tr></thead>
+
+      <tbody id="cliTB"></tbody>
+
+    </table>
+
+  </div>
+
 </div>
+
+
 
 <!-- DOCUMENTOS -->
+
 <div class="page" id="tab-docs">
-  <div class="docs-leg">
-    <div class="leg-i"><span class="doc-ok">✓ Recebido</span> entregue</div>
-    <div class="leg-i"><span class="doc-pend">⏳ Pendente</span> não recebido</div>
-  </div>
-  <div class="block">
-    <div class="toolbar">
-      <div class="srch"><input type="text" id="srchDocs" placeholder="Buscar cliente…" oninput="renderDocs()"/></div>
-      <select class="sel" id="selDocsGe" onchange="renderDocs()"><option value="">Todos os gerentes</option></select>
-      <select class="sel" id="selDocsFil" onchange="renderDocs()">
-        <option value="">Todos</option><option value="pend">Com pendências</option><option value="ok">Completos</option>
-      </select>
-      <div class="cnt" id="docsCnt"></div>
-    </div>
-    <table class="dt">
-      <thead><tr><th>Cliente</th><th>Gerente</th><th>Status</th><th>Recebidos</th><th>Pendentes</th><th>Docs Pendentes</th><th></th></tr></thead>
-      <tbody id="docsTB"></tbody>
-    </table>
-  </div>
+
+  <div class="docs-leg">
+
+    <div class="leg-i"><span class="doc-ok">✓ Recebido</span> entregue</div>
+
+    <div class="leg-i"><span class="doc-pend">⏳ Pendente</span> não recebido</div>
+
+  </div>
+
+  <div class="block">
+
+    <div class="toolbar">
+
+      <div class="srch"><input type="text" id="srchDocs" placeholder="Buscar cliente…" oninput="renderDocs()"/></div>
+
+      <select class="sel" id="selDocsGe" onchange="renderDocs()"><option value="">Todos os gerentes</option></select>
+
+      <select class="sel" id="selDocsFil" onchange="renderDocs()">
+
+        <option value="">Todos</option><option value="pend">Com pendências</option><option value="ok">Completos</option>
+
+      </select>
+
+      <div class="cnt" id="docsCnt"></div>
+
+    </div>
+
+    <table class="dt">
+
+      <thead><tr><th>Cliente</th><th>Gerente</th><th>Status</th><th>Recebidos</th><th>Pendentes</th><th>Docs Pendentes</th><th></th></tr></thead>
+
+      <tbody id="docsTB"></tbody>
+
+    </table>
+
+  </div>
+
 </div>
 
+
+
 <!-- MODAL -->
+
 <div class="mbg" id="modalBg" onclick="closeMOcl(event)">
-  <div class="mbox" id="mbox">
-    <div class="sov" id="sov">↻ Salvando na planilha…</div>
-    <div class="mhead">
-      <div>
-        <div id="mT" style="font-size:16px;font-weight:700;font-family:'Syne',sans-serif;color:var(--nav)"></div>
-        <div id="mS" style="font-size:12px;color:var(--mu);margin-top:2px"></div>
-      </div>
-      <button class="mclose" onclick="closeMO()">✕</button>
-    </div>
-    <div class="mbody" id="mB"></div>
-    <div class="macts" id="mA"></div>
-  </div>
+
+  <div class="mbox" id="mbox">
+
+    <div class="sov" id="sov">↻ Salvando na planilha…</div>
+
+    <div class="mhead">
+
+      <div>
+
+        <div id="mT" style="font-size:16px;font-weight:700;font-family:'Syne',sans-serif;color:var(--nav)"></div>
+
+        <div id="mS" style="font-size:12px;color:var(--mu);margin-top:2px"></div>
+
+      </div>
+
+      <button class="mclose" onclick="closeMO()">✕</button>
+
+    </div>
+
+    <div class="mbody" id="mB"></div>
+
+    <div class="macts" id="mA"></div>
+
+  </div>
+
 </div>
+
+
 
 <footer>Desenvolvido por Rayssa Nascimento — LFS Financial Advisory</footer>
 
+
+
 <script>
+
 // ════════════════════════════════════════
+
 // CONFIG
+
 // ════════════════════════════════════════
+
 // ── IDs já configurados — não editar ──
+
 const CFG = {
-  clientId: '67061d6c-ac2c-4bcb-a4b1-48ef14b406de',
-  tenantId: 'f96bccf8-a9e9-4a51-a698-22d0672afe76',
+
+  clientId: '67061d6c-ac2c-4bcb-a4b1-48ef14b406de',
+
+  tenantId: 'f96bccf8-a9e9-4a51-a698-22d0672afe76',
+
 };
+
 // Arquivo Excel: ID do sourcedoc extraído do URL SharePoint fornecido
+
 const FILE_ID = 'a0f48875-4a46-4412-8d92-ddc573574e20';
+
 const SHEET_CTRL = 'Controle Aproximação';
+
 const SHEET_DOCS = 'Docs Pendentes - FIDC';
+
 // SCOPES definidos em SCOPE (string) para PKCE nativo
 
+
+
 const MO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
 const MOL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
 const TODAY = new Date();
+
 const GC = {Ana:'#C9962A',Arnaldo:'#E8621A',César:'#1E6B43',Fred:'#7d3c98',Gabriel:'#c0392b',Luiz:'#2471a3',Rodrigo:'#1abc9c'};
+
 const DOC_COLS = ['Cartão CNPJ','Contrato Social','Última alt. contratual','Apresentação da empresa','Comp. endereço empresa','Dados Bancários','Curva ABC','Fornecedores','Bancos','Balanço, DRE 2022','Balanço, DRE 2023','Balanço, DRE 2024','Balanço, DRE 2025','Faturamento 2023, 2024 e 2025','Empréstimos e Financiamentos','CNH Sócio(s)','Comp. residencial dos sócios','IRPF - Declaração e Recibo','CNH cônjuge(s)','Certidão de Casamento'];
+
 const ST_LIST = ['Finalizado','Contrato Pendente','Contrato e Documentos','Documento Pendente','Pausado','Declinado LFS','Declinado Cliente','Direcionado Crédito'];
+
 const TIPO_LIST = ['','Antecipação de Convencionais','Antecipação de Contratos Públicos','Duplicata','Capital de Giro','Nota Comercial','Capital Estrangeiro'];
 
+
+
 let DATA = { rows: [], docs_map: {} };
+
 let selM = new Set(['todos']), selG = new Set(['todos']);
+
 let tok = null;
+
 let wbDrive = null, wbItem = null;
+
 let rowIdx = {}, docsIdx = {};
+
+
 
 // IDs embutidos no código — setup removido
 
+
+
 // ════════════════════════════════════════
+
 // AUTH — OAuth2 PKCE nativo (sem dependências)
+
 // ════════════════════════════════════════
-const TENANT  = CFG.tenantId;
-const CLIENT  = CFG.clientId;
+
+const TENANT  = CFG.tenantId;
+
+const CLIENT  = CFG.clientId;
+
 const REDIRECT = 'https://rayssa-fidc.github.io/Dash-Clientes/';
+
 const AUTH_URL = `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/authorize`;
+
 const TOKEN_URL = `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/token`;
+
 const SCOPE = 'openid profile User.Read Files.ReadWrite Sites.ReadWrite.All offline_access';
 
+
+
 // Gera string aleatória
+
 function randStr(len) {
-  const arr = new Uint8Array(len);
-  crypto.getRandomValues(arr);
-  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'').substring(0,len);
+
+  const arr = new Uint8Array(len);
+
+  crypto.getRandomValues(arr);
+
+  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'').substring(0,len);
+
 }
+
+
 
 // SHA-256 + base64url para PKCE
+
 async function sha256b64(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+
 }
+
+
 
 // Salva/lê sessão
+
 function saveSession(data) {
-  try { localStorage.setItem('fidc_session', JSON.stringify(data)); } catch(e){}
+
+  try { localStorage.setItem('fidc_session', JSON.stringify(data)); } catch(e){}
+
 }
+
 function loadSession() {
-  try { return JSON.parse(localStorage.getItem('fidc_session') || 'null'); } catch(e){ return null; }
+
+  try { return JSON.parse(localStorage.getItem('fidc_session') || 'null'); } catch(e){ return null; }
+
 }
+
 function clearSession() {
-  localStorage.removeItem('fidc_session');
+
+  localStorage.removeItem('fidc_session');
+
 }
+
+
 
 // Verifica se token ainda é válido (com 5min de margem)
+
 function tokenValid(session) {
-  if (!session || !session.tok || !session.exp) return false;
-  return Date.now() < (session.exp - 300000);
+
+  if (!session || !session.tok || !session.exp) return false;
+
+  return Date.now() < (session.exp - 300000);
+
 }
+
+
 
 let _popupWin = null;
+
 let _pkceVerifier = null;
+
 let _pkceState = null;
 
+
+
 async function initMSAL() {
-  // Verifica sessão salva
-  const session = loadSession();
-  if (tokenValid(session)) {
-    tok = session.tok;
-    onLogin({ name: session.name, username: session.email });
-    return;
-  }
-  // Tenta renovar com refresh token
-  if (session?.refresh) {
-    try {
-      const newTok = await refreshToken(session.refresh);
-      if (newTok) {
-        tok = newTok.access_token;
-        saveSession({
-          tok: newTok.access_token,
-          refresh: newTok.refresh_token || session.refresh,
-          exp: Date.now() + (newTok.expires_in * 1000),
-          name: session.name,
-          email: session.email,
-        });
-        onLogin({ name: session.name, username: session.email });
-        return;
-      }
-    } catch(e) {}
-  }
-  showLoginOverlay();
+
+  // Verifica sessão salva
+
+  const session = loadSession();
+
+  if (tokenValid(session)) {
+
+    tok = session.tok;
+
+    onLogin({ name: session.name, username: session.email });
+
+    return;
+
+  }
+
+  // Tenta renovar com refresh token
+
+  if (session?.refresh) {
+
+    try {
+
+      const newTok = await refreshToken(session.refresh);
+
+      if (newTok) {
+
+        tok = newTok.access_token;
+
+        saveSession({
+
+          tok: newTok.access_token,
+
+          refresh: newTok.refresh_token || session.refresh,
+
+          exp: Date.now() + (newTok.expires_in * 1000),
+
+          name: session.name,
+
+          email: session.email,
+
+        });
+
+        onLogin({ name: session.name, username: session.email });
+
+        return;
+
+      }
+
+    } catch(e) {}
+
+  }
+
+  showLoginOverlay();
+
 }
+
+
 
 async function refreshToken(refreshTok) {
-  const body = new URLSearchParams({
-    client_id: CLIENT,
-    grant_type: 'refresh_token',
-    refresh_token: refreshTok,
-    scope: SCOPE,
-  });
-  const r = await fetch(TOKEN_URL, { method: 'POST', body });
-  if (!r.ok) return null;
-  return r.json();
+
+  const body = new URLSearchParams({
+
+    client_id: CLIENT,
+
+    grant_type: 'refresh_token',
+
+    refresh_token: refreshTok,
+
+    scope: SCOPE,
+
+  });
+
+  const r = await fetch(TOKEN_URL, { method: 'POST', body });
+
+  if (!r.ok) return null;
+
+  return r.json();
+
 }
+
+
 
 async function doLoginFromOverlay() {
-  document.getElementById('loLoginArea').style.display = 'none';
-  document.getElementById('loLoading').style.display = 'flex';
 
-  try {
-    _pkceVerifier = randStr(64);
-    _pkceState    = randStr(32);
-    const challenge = await sha256b64(_pkceVerifier);
+  document.getElementById('loLoginArea').style.display = 'none';
 
-    // Salva no localStorage para o popup acessar após redirect
-    localStorage.setItem('pkce_verifier', _pkceVerifier);
-    localStorage.setItem('pkce_state',    _pkceState);
-    localStorage.removeItem('fidc_auth_result'); // limpa resultado anterior
+  document.getElementById('loLoading').style.display = 'flex';
 
-    const params = new URLSearchParams({
-      client_id:             CLIENT,
-      response_type:         'code',
-      redirect_uri:          REDIRECT,
-      scope:                 SCOPE,
-      state:                 _pkceState,
-      code_challenge:        challenge,
-      code_challenge_method: 'S256',
-      prompt:                'select_account',
-    });
 
-    const w = 520, h = 620;
-    const left = Math.round(screen.width/2 - w/2);
-    const top  = Math.round(screen.height/2 - h/2);
-    _popupWin = window.open(
-      AUTH_URL + '?' + params.toString(),
-      'msauth',
-      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`
-    );
 
-    if (!_popupWin) {
-      showLoginError('Popup bloqueado. Permita popups para este site e tente novamente.');
-      return;
-    }
+  try {
 
-    // Monitora localStorage para resultado do auth (evita COOP/SecurityError)
-    await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        clearInterval(poll);
-        localStorage.removeItem('fidc_auth_result');
-        reject(new Error('Login expirou. Tente novamente.'));
-      }, 120000);
+    _pkceVerifier = randStr(64);
 
-      const poll = setInterval(() => {
-        // Verifica resultado no localStorage
-        const result = localStorage.getItem('fidc_auth_result');
-        if (result) {
-          clearInterval(poll);
-          clearTimeout(timeout);
-          localStorage.removeItem('fidc_auth_result');
-          try {
-            const data = JSON.parse(result);
-            if (data.error) { reject(new Error(data.error)); return; }
-            tok = data.tok;
-            saveSession(data);
-            onLogin({ name: data.name, username: data.email });
-            resolve();
-          } catch(e) { reject(e); }
-          return;
-        }
-        // Verifica se popup fechou sem completar
-        try {
-          if (_popupWin && _popupWin.closed) {
-            clearInterval(poll);
-            clearTimeout(timeout);
-            reject(new Error('cancelled'));
-          }
-        } catch(e) { /* COOP — ignora */ }
-      }, 400);
-    });
+    _pkceState    = randStr(32);
 
-  } catch(e) {
-    document.getElementById('loLoading').style.display = 'none';
-    document.getElementById('loLoginArea').style.display = 'block';
-    if (e.message !== 'cancelled') showLoginError('Erro no login: ' + e.message);
-  }
+    const challenge = await sha256b64(_pkceVerifier);
+
+
+
+    // Salva no localStorage para o popup acessar após redirect
+
+    localStorage.setItem('pkce_verifier', _pkceVerifier);
+
+    localStorage.setItem('pkce_state',    _pkceState);
+
+    localStorage.removeItem('fidc_auth_result'); // limpa resultado anterior
+
+
+
+    const params = new URLSearchParams({
+
+      client_id:             CLIENT,
+
+      response_type:         'code',
+
+      redirect_uri:          REDIRECT,
+
+      scope:                 SCOPE,
+
+      state:                 _pkceState,
+
+      code_challenge:        challenge,
+
+      code_challenge_method: 'S256',
+
+      prompt:                'select_account',
+
+    });
+
+
+
+    const w = 520, h = 620;
+
+    const left = Math.round(screen.width/2 - w/2);
+
+    const top  = Math.round(screen.height/2 - h/2);
+
+    _popupWin = window.open(
+
+      AUTH_URL + '?' + params.toString(),
+
+      'msauth',
+
+      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`
+
+    );
+
+
+
+    if (!_popupWin) {
+
+      showLoginError('Popup bloqueado. Permita popups para este site e tente novamente.');
+
+      return;
+
+    }
+
+
+
+    // Monitora localStorage para resultado do auth (evita COOP/SecurityError)
+
+    await new Promise((resolve, reject) => {
+
+      const timeout = setTimeout(() => {
+
+        clearInterval(poll);
+
+        localStorage.removeItem('fidc_auth_result');
+
+        reject(new Error('Login expirou. Tente novamente.'));
+
+      }, 120000);
+
+
+
+      const poll = setInterval(() => {
+
+        // Verifica resultado no localStorage
+
+        const result = localStorage.getItem('fidc_auth_result');
+
+        if (result) {
+
+          clearInterval(poll);
+
+          clearTimeout(timeout);
+
+          localStorage.removeItem('fidc_auth_result');
+
+          try {
+
+            const data = JSON.parse(result);
+
+            if (data.error) { reject(new Error(data.error)); return; }
+
+            tok = data.tok;
+
+            saveSession(data);
+
+            onLogin({ name: data.name, username: data.email });
+
+            resolve();
+
+          } catch(e) { reject(e); }
+
+          return;
+
+        }
+
+        // Verifica se popup fechou sem completar
+
+        try {
+
+          if (_popupWin && _popupWin.closed) {
+
+            clearInterval(poll);
+
+            clearTimeout(timeout);
+
+            reject(new Error('cancelled'));
+
+          }
+
+        } catch(e) { /* COOP — ignora */ }
+
+      }, 400);
+
+    });
+
+
+
+  } catch(e) {
+
+    document.getElementById('loLoading').style.display = 'none';
+
+    document.getElementById('loLoginArea').style.display = 'block';
+
+    if (e.message !== 'cancelled') showLoginError('Erro no login: ' + e.message);
+
+  }
+
 }
+
+
 
 function doLogin() { doLoginFromOverlay(); }
 
+
+
 function doLogout() {
-  tok = null;
-  clearSession();
-  document.getElementById('authPill').style.display = 'none';
-  document.getElementById('loginBtn').style.display  = 'none';
-  document.getElementById('logoutBtn').style.display = 'none';
-  // Abre logout do Azure
-  window.open(
-    `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(REDIRECT)}`,
-    '_blank'
-  );
-  showLoginOverlay();
+
+  tok = null;
+
+  clearSession();
+
+  document.getElementById('authPill').style.display = 'none';
+
+  document.getElementById('loginBtn').style.display  = 'none';
+
+  document.getElementById('logoutBtn').style.display = 'none';
+
+  // Abre logout do Azure
+
+  window.open(
+
+    `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(REDIRECT)}`,
+
+    '_blank'
+
+  );
+
+  showLoginOverlay();
+
 }
+
+
 
 // doLogout definido no bloco de auth acima
+
 function validateDomain(acc) {
-  const email = (acc.username || acc.email || '').toLowerCase();
-  return email.endsWith('@lfsfinancial.com.br');
+
+  const email = (acc.username || acc.email || '').toLowerCase();
+
+  return email.endsWith('@lfsfinancial.com.br');
+
 }
+
+
 
 function onLogin(acc) {
-  if (!validateDomain(acc)) {
-    clearSession();
-    showLoginError('Acesso permitido apenas para contas @lfsfinancial.com.br');
-    return;
-  }
-  document.getElementById('loginOverlay').style.display = 'none';
-  document.getElementById('offB').style.display = 'none';
-  document.getElementById('loginBtn').style.display = 'none';
-  document.getElementById('logoutBtn').style.display = 'flex';
-  const nm = acc.name || acc.username || 'Usuário';
-  document.getElementById('authNm').textContent = nm.split(' ')[0];
-  document.getElementById('authAv').textContent = (nm[0] || '?').toUpperCase();
-  document.getElementById('authPill').style.display = 'flex';
-  syncData();
+
+  if (!validateDomain(acc)) {
+
+    clearSession();
+
+    showLoginError('Acesso permitido apenas para contas @lfsfinancial.com.br');
+
+    return;
+
+  }
+
+  document.getElementById('loginOverlay').style.display = 'none';
+
+  document.getElementById('offB').style.display = 'none';
+
+  document.getElementById('loginBtn').style.display = 'none';
+
+  document.getElementById('logoutBtn').style.display = 'flex';
+
+  const nm = acc.name || acc.username || 'Usuário';
+
+  document.getElementById('authNm').textContent = nm.split(' ')[0];
+
+  document.getElementById('authAv').textContent = (nm[0] || '?').toUpperCase();
+
+  document.getElementById('authPill').style.display = 'flex';
+
+  syncData();
+
 }
+
 function showLoginOverlay() {
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('loLoading').style.display = 'none';
-  document.getElementById('loLoginArea').style.display = 'block';
-  document.getElementById('loError').style.display = 'none';
+
+  document.getElementById('loginOverlay').style.display = 'flex';
+
+  document.getElementById('loLoading').style.display = 'none';
+
+  document.getElementById('loLoginArea').style.display = 'block';
+
+  document.getElementById('loError').style.display = 'none';
+
 }
+
+
 
 function showLoginError(msg) {
-  document.getElementById('loError').textContent = msg;
-  document.getElementById('loError').style.display = 'block';
-  document.getElementById('loLoginArea').style.display = 'block';
-  document.getElementById('loLoading').style.display = 'none';
+
+  document.getElementById('loError').textContent = msg;
+
+  document.getElementById('loError').style.display = 'block';
+
+  document.getElementById('loLoginArea').style.display = 'block';
+
+  document.getElementById('loLoading').style.display = 'none';
+
 }
+
+
 
 function showOffline() {
-  document.getElementById('offB').style.display = 'flex';
-  renderAll();
+
+  document.getElementById('offB').style.display = 'flex';
+
+  renderAll();
+
 }
 
+
+
 // ════════════════════════════════════════
+
 // GRAPH API
+
 // ════════════════════════════════════════
+
 async function gfetch(path, opts={}) {
-  if(!tok) throw new Error('Não autenticado');
-  const r = await fetch('https://graph.microsoft.com/v1.0'+path, {
-    ...opts,
-    headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json',...(opts.headers||{})},
-  });
-  if(!r.ok){ const b=await r.text(); throw new Error(`Graph ${r.status}: ${b}`); }
-  if(r.status===204) return null;
-  return r.json();
+
+  if(!tok) throw new Error('Não autenticado');
+
+  const r = await fetch('https://graph.microsoft.com/v1.0'+path, {
+
+    ...opts,
+
+    headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json',...(opts.headers||{})},
+
+  });
+
+  if(!r.ok){ const b=await r.text(); throw new Error(`Graph ${r.status}: ${b}`); }
+
+  if(r.status===204) return null;
+
+  return r.json();
+
 }
+
 async function resolveWB() {
-  if (wbDrive && wbItem) return;
 
-  const USER = 'administrador@lfsfinancial.com.br';
+  if (wbDrive && wbItem) return;
 
-  // Estratégia 1: drive do administrador via UPN + FILE_ID direto
-  try {
-    const item = await gfetch('/users/' + encodeURIComponent(USER) + '/drive/items/' + FILE_ID);
-    wbDrive = item.parentReference && item.parentReference.driveId ? item.parentReference.driveId : null;
-    wbItem  = item.id;
-    console.log('resolveWB OK via /users/drive');
-    return;
-  } catch(e) { console.warn('resolveWB /users/drive:', e.message); }
 
-  // Estratégia 2: drive do usuário logado (/me)
-  try {
-    const item = await gfetch('/me/drive/items/' + FILE_ID);
-    wbDrive = item.parentReference && item.parentReference.driveId ? item.parentReference.driveId : null;
-    wbItem  = item.id;
-    console.log('resolveWB OK via /me/drive');
-    return;
-  } catch(e) { console.warn('resolveWB /me/drive:', e.message); }
 
-  // Estratégia 3: site SharePoint pessoal
-  try {
-    const siteHost = 'lfsfinancialbr-my.sharepoint.com';
-    const sitePath = '/personal/administrador_lfsfinancial_com_br';
-    const site   = await gfetch('/sites/' + siteHost + ':' + sitePath);
-    const drives = await gfetch('/sites/' + site.id + '/drives');
-    for (const drive of (drives.value || [])) {
-      try {
-        const item = await gfetch('/drives/' + drive.id + '/items/' + FILE_ID);
-        wbDrive = drive.id;
-        wbItem  = item.id;
-        console.log('resolveWB OK via SharePoint:', drive.id);
-        return;
-      } catch(e2) {}
-    }
-  } catch(e) { console.warn('resolveWB SharePoint:', e.message); }
+  const USER = 'administrador@lfsfinancial.com.br';
 
-  // Fallback
-  console.warn('resolveWB: usando fallback');
-  wbDrive = null;
-  wbItem  = FILE_ID;
+
+
+  // Estratégia 1: drive do administrador via UPN + FILE_ID direto
+
+  try {
+
+    const item = await gfetch('/users/' + encodeURIComponent(USER) + '/drive/items/' + FILE_ID);
+
+    wbDrive = item.parentReference && item.parentReference.driveId ? item.parentReference.driveId : null;
+
+    wbItem  = item.id;
+
+    console.log('resolveWB OK via /users/drive');
+
+    return;
+
+  } catch(e) { console.warn('resolveWB /users/drive:', e.message); }
+
+
+
+  // Estratégia 2: drive do usuário logado (/me)
+
+  try {
+
+    const item = await gfetch('/me/drive/items/' + FILE_ID);
+
+    wbDrive = item.parentReference && item.parentReference.driveId ? item.parentReference.driveId : null;
+
+    wbItem  = item.id;
+
+    console.log('resolveWB OK via /me/drive');
+
+    return;
+
+  } catch(e) { console.warn('resolveWB /me/drive:', e.message); }
+
+
+
+  // Estratégia 3: site SharePoint pessoal
+
+  try {
+
+    const siteHost = 'lfsfinancialbr-my.sharepoint.com';
+
+    const sitePath = '/personal/administrador_lfsfinancial_com_br';
+
+    const site   = await gfetch('/sites/' + siteHost + ':' + sitePath);
+
+    const drives = await gfetch('/sites/' + site.id + '/drives');
+
+    for (const drive of (drives.value || [])) {
+
+      try {
+
+        const item = await gfetch('/drives/' + drive.id + '/items/' + FILE_ID);
+
+        wbDrive = drive.id;
+
+        wbItem  = item.id;
+
+        console.log('resolveWB OK via SharePoint:', drive.id);
+
+        return;
+
+      } catch(e2) {}
+
+    }
+
+  } catch(e) { console.warn('resolveWB SharePoint:', e.message); }
+
+
+
+  // Fallback
+
+  console.warn('resolveWB: usando fallback');
+
+  wbDrive = null;
+
+  wbItem  = FILE_ID;
+
 }
+
+
 
 function wbBase() {
-  if(wbDrive) return `/drives/${wbDrive}/items/${wbItem}/workbook`;
-  return `/me/drive/items/${wbItem}/workbook`;
+
+  if(wbDrive) return `/drives/${wbDrive}/items/${wbItem}/workbook`;
+
+  return `/me/drive/items/${wbItem}/workbook`;
+
 }
+
+
 
 async function syncData() {
-  if (!tok || !tokenValid(loadSession())) {
-    const r = await acquireTok();
-    if (!r) { toast('Sessão expirada. Faça login novamente.','err'); showLoginOverlay(); return; }
-  }
-  const btn = document.getElementById('syncBtn');
-  btn.classList.add('loading');
-  lb(20);
-  try {
-    await resolveWB();
-    lb(40);
-    await loadCtrl();
-    lb(70);
-    await loadDocs();
-    lb(95);
-    document.getElementById('offB').style.display='none';
-    document.getElementById('hts').textContent='Sync '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    buildPills(); popSelects(); renderAll();
-    toast('Dados sincronizados!','ok');
-  } catch(e) {
-    console.error(e);
-    toast('Erro: '+e.message,'err');
-    document.getElementById('offB').style.display='flex';
-  }
-  lb(100); btn.classList.remove('loading');
-  setTimeout(()=>lb(0),600);
+
+  if (!tok || !tokenValid(loadSession())) {
+
+    const r = await acquireTok();
+
+    if (!r) { toast('Sessão expirada. Faça login novamente.','err'); showLoginOverlay(); return; }
+
+  }
+
+  const btn = document.getElementById('syncBtn');
+
+  btn.classList.add('loading');
+
+  lb(20);
+
+  try {
+
+    await resolveWB();
+
+    lb(40);
+
+    await loadCtrl();
+
+    lb(70);
+
+    await loadDocs();
+
+    lb(95);
+
+    document.getElementById('offB').style.display='none';
+
+    document.getElementById('hts').textContent='Sync '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+    buildPills(); popSelects(); renderAll();
+
+    toast('Dados sincronizados!','ok');
+
+  } catch(e) {
+
+    console.error(e);
+
+    toast('Erro: '+e.message,'err');
+
+    document.getElementById('offB').style.display='flex';
+
+  }
+
+  lb(100); btn.classList.remove('loading');
+
+  setTimeout(()=>lb(0),600);
+
 }
+
+
 
 async function loadCtrl() {
-  const resp = await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/usedRange?$select=values`);
-  const v = resp.values;
-  const raws = []; rowIdx = {};
-  for(let i=3;i<v.length;i++){
-    const r=v[i], c=fmtStr(r[0]);
-    if(!c) continue;
-    raws.push({
-      cliente:c, responsavel:fmtStr(r[1]), tipo:fmtStr(r[2]), status:fmtStr(r[3]),
-      entrada:fmtDate(r[4]), cob1:fmtDate(r[5]), cob2:fmtDate(r[6]), cob3:fmtDate(r[7]),
-      status_cobranca:fmtStr(r[8]), assinado:fmtDate(r[10]),
-      declinio_motivo:fmtStr(r[18]), observacao:fmtStr(r[20]),
-      _row: i+1,
-    });
-    rowIdx[c]=i+1;
-  }
-  DATA.rows = consolidate(raws);
+
+  const resp = await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/usedRange?$select=values`);
+
+  const v = resp.values;
+
+  const raws = []; rowIdx = {};
+
+  for(let i=3;i<v.length;i++){
+
+    const r=v[i], c=fmtStr(r[0]);
+
+    if(!c) continue;
+
+    raws.push({
+
+      cliente:c, responsavel:fmtStr(r[1]), tipo:fmtStr(r[2]), status:fmtStr(r[3]),
+
+      entrada:fmtDate(r[4]), cob1:fmtDate(r[5]), cob2:fmtDate(r[6]), cob3:fmtDate(r[7]),
+
+      status_cobranca:fmtStr(r[8]), assinado:fmtDate(r[10]),
+
+      declinio_motivo:fmtStr(r[18]), observacao:fmtStr(r[20]),
+
+      _row: i+1,
+
+    });
+
+    rowIdx[c]=i+1;
+
+  }
+
+  DATA.rows = consolidate(raws);
+
 }
+
+
 
 async function loadDocs() {
-  let resp;
-  try{ resp=await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/usedRange?$select=values`); }
-  catch{ DATA.docs_map={}; return; }
-  const v=resp.values;
-  const dcn=[]; docsIdx={};
-  for(let c=5;c<25;c++) dcn.push(v[2]&&v[2][c]?String(v[2][c]).trim():'');
-  const rd={};
-  for(let i=3;i<v.length;i++){
-    const dr=v[i], cli=dr[1];
-    if(!cli||String(cli).trim()===''||String(cli).startsWith('=')||String(cli).includes('ArrayFormula')) continue;
-    const cs=String(cli).trim();
-    const pend=[],recv=[];
-    for(let ci=0;ci<dcn.length;ci++){
-      if(!dcn[ci]) continue;
-      const val=dr[5+ci];
-      if(val===true||val===1||String(val).toUpperCase()==='VERDADEIRO'||String(val).toUpperCase()==='TRUE') recv.push(dcn[ci]);
-      else pend.push(dcn[ci]);
-    }
-    rd[cs]={pendentes:pend,recebidos:recv};
-    docsIdx[cs]=i+1;
-  }
-  DATA.docs_map = consolidateDocs(rd);
+
+  let resp;
+
+  try{ resp=await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/usedRange?$select=values`); }
+
+  catch{ DATA.docs_map={}; return; }
+
+  const v=resp.values;
+
+  const dcn=[]; docsIdx={};
+
+  for(let c=5;c<25;c++) dcn.push(v[2]&&v[2][c]?String(v[2][c]).trim():'');
+
+  const rd={};
+
+  for(let i=3;i<v.length;i++){
+
+    const dr=v[i], cli=dr[1];
+
+    if(!cli||String(cli).trim()===''||String(cli).startsWith('=')||String(cli).includes('ArrayFormula')) continue;
+
+    const cs=String(cli).trim();
+
+    const pend=[],recv=[];
+
+    for(let ci=0;ci<dcn.length;ci++){
+
+      if(!dcn[ci]) continue;
+
+      const val=dr[5+ci];
+
+      if(val===true||val===1||String(val).toUpperCase()==='VERDADEIRO'||String(val).toUpperCase()==='TRUE') recv.push(dcn[ci]);
+
+      else pend.push(dcn[ci]);
+
+    }
+
+    rd[cs]={pendentes:pend,recebidos:recv};
+
+    docsIdx[cs]=i+1;
+
+  }
+
+  DATA.docs_map = consolidateDocs(rd);
+
 }
 
+
+
 // ════════════════════════════════════════
+
 // WRITE TO SHEET
+
 // ════════════════════════════════════════
+
 function toSerial(ds) {
-  if(!ds) return null;
-  const d=new Date(ds+'T12:00:00'); if(isNaN(d)) return null;
-  return Math.round((d-new Date(1899,11,30))/86400000);
+
+  if(!ds) return null;
+
+  const d=new Date(ds+'T12:00:00'); if(isNaN(d)) return null;
+
+  return Math.round((d-new Date(1899,11,30))/86400000);
+
 }
+
 function rowVals(r) {
-  const v=new Array(21).fill(null);
-  v[0]=r.cliente||''; v[1]=r.responsavel||''; v[2]=r.tipo||''; v[3]=r.status||'';
-  v[4]=toSerial(r.entrada)||''; v[5]=toSerial(r.cob1)||''; v[6]=toSerial(r.cob2)||''; v[7]=toSerial(r.cob3)||'';
-  v[8]=r.status_cobranca||''; v[10]=toSerial(r.assinado)||'';
-  v[18]=r.declinio_motivo||''; v[20]=r.observacao||'';
-  return [v];
+
+  const v=new Array(21).fill(null);
+
+  v[0]=r.cliente||''; v[1]=r.responsavel||''; v[2]=r.tipo||''; v[3]=r.status||'';
+
+  v[4]=toSerial(r.entrada)||''; v[5]=toSerial(r.cob1)||''; v[6]=toSerial(r.cob2)||''; v[7]=toSerial(r.cob3)||'';
+
+  v[8]=r.status_cobranca||''; v[10]=toSerial(r.assinado)||'';
+
+  v[18]=r.declinio_motivo||''; v[20]=r.observacao||'';
+
+  return [v];
+
 }
+
 async function saveRow(r) {
-  if(!tok) throw new Error('Não autenticado');
-  await resolveWB();
-  if(!r._row) return appendRow(r);
-  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/range(address='A${r._row}:U${r._row}')`,
-    {method:'PATCH',body:JSON.stringify({values:rowVals(r)})});
+
+  if(!tok) throw new Error('Não autenticado');
+
+  await resolveWB();
+
+  if(!r._row) return appendRow(r);
+
+  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/range(address='A${r._row}:U${r._row}')`,
+
+    {method:'PATCH',body:JSON.stringify({values:rowVals(r)})});
+
 }
+
 async function appendRow(r) {
-  const resp=await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/usedRange?$select=rowCount`);
-  const nr=(resp.rowCount||3)+1;
-  r._row=nr;
-  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/range(address='A${nr}:U${nr}')`,
-    {method:'PATCH',body:JSON.stringify({values:rowVals(r)})});
-  rowIdx[r.cliente]=nr;
+
+  const resp=await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/usedRange?$select=rowCount`);
+
+  const nr=(resp.rowCount||3)+1;
+
+  r._row=nr;
+
+  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/range(address='A${nr}:U${nr}')`,
+
+    {method:'PATCH',body:JSON.stringify({values:rowVals(r)})});
+
+  rowIdx[r.cliente]=nr;
+
 }
+
 async function clearRow(sheetRow) {
-  if(!sheetRow||!tok) return;
-  await resolveWB();
-  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/range(address='A${sheetRow}:U${sheetRow}')`,
-    {method:'PATCH',body:JSON.stringify({values:[new Array(21).fill('')]})});
+
+  if(!sheetRow||!tok) return;
+
+  await resolveWB();
+
+  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_CTRL)}')/range(address='A${sheetRow}:U${sheetRow}')`,
+
+    {method:'PATCH',body:JSON.stringify({values:[new Array(21).fill('')]})});
+
 }
+
 async function saveDocRow(cli, checked) {
-  if(!tok) throw new Error('Não autenticado');
-  await resolveWB();
-  const sr=docsIdx[cli];
-  if(!sr){ await appendDocRow(cli,checked); return; }
-  const bv=DOC_COLS.map(d=>checked.includes(d));
-  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/range(address='F${sr}:Y${sr}')`,
-    {method:'PATCH',body:JSON.stringify({values:[bv]})});
+
+  if(!tok) throw new Error('Não autenticado');
+
+  await resolveWB();
+
+  const sr=docsIdx[cli];
+
+  if(!sr){ await appendDocRow(cli,checked); return; }
+
+  const bv=DOC_COLS.map(d=>checked.includes(d));
+
+  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/range(address='F${sr}:Y${sr}')`,
+
+    {method:'PATCH',body:JSON.stringify({values:[bv]})});
+
 }
+
 async function appendDocRow(cli, checked) {
-  const resp=await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/usedRange?$select=rowCount`);
-  const nr=(resp.rowCount||3)+1;
-  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/range(address='B${nr}')`,
-    {method:'PATCH',body:JSON.stringify({values:[[cli]]})});
-  const bv=DOC_COLS.map(d=>checked.includes(d));
-  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/range(address='F${nr}:Y${nr}')`,
-    {method:'PATCH',body:JSON.stringify({values:[bv]})});
-  docsIdx[cli]=nr;
+
+  const resp=await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/usedRange?$select=rowCount`);
+
+  const nr=(resp.rowCount||3)+1;
+
+  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/range(address='B${nr}')`,
+
+    {method:'PATCH',body:JSON.stringify({values:[[cli]]})});
+
+  const bv=DOC_COLS.map(d=>checked.includes(d));
+
+  await gfetch(`${wbBase()}/worksheets('${enc(SHEET_DOCS)}')/range(address='F${nr}:Y${nr}')`,
+
+    {method:'PATCH',body:JSON.stringify({values:[bv]})});
+
+  docsIdx[cli]=nr;
+
 }
 
+
+
 // ════════════════════════════════════════
+
 // GRUPOS
-// ════════════════════════════════════════
-function xgrp(c){ const m=c?.match(/\(([^)]+)\)$/); return m?m[1].trim():null; }
-function consolidate(rows) {
-  const gm=new Map(), res=[];
-  rows.forEach(r=>{
-    const g=xgrp(r.cliente);
-    if(g){
-      if(!gm.has(g)){ const c={...r,cliente:g,_isGroup:true,_membros:[r.cliente],_mrows:[r]}; gm.set(g,c); res.push(c); }
-      else{ const c=gm.get(g); c._membros.push(r.cliente); c._mrows.push(r);
-        if(r.entrada&&(!c.entrada||r.entrada<c.entrada)) c.entrada=r.entrada;
-        ['cob1','cob2','cob3'].forEach(k=>{if(r[k]&&!c[k])c[k]=r[k];});
-        if(r.observacao&&r.observacao!==c.observacao) c.observacao=[c.observacao,r.observacao].filter(Boolean).join(' | ');
-      }
-    } else res.push(r);
-  });
-  return res.sort((a,b)=>(a.entrada||'').localeCompare(b.entrada||''));
-}
-function consolidateDocs(rd) {
-  const res={};
-  Object.keys(rd).forEach(c=>{ if(!xgrp(c)) res[c]=rd[c]; });
-  const gs={};
-  Object.keys(rd).forEach(c=>{ const g=xgrp(c); if(!g) return;
-    if(!gs[g]) gs[g]={pend:new Set(),recv:new Set()};
-    rd[c].pendentes.forEach(d=>gs[g].pend.add(d));
-    rd[c].recebidos.forEach(d=>gs[g].recv.add(d));
-  });
-  Object.keys(gs).forEach(g=>{
-    const pend=[...gs[g].pend], recv=[...gs[g].recv].filter(d=>!gs[g].pend.has(d));
-    res[g]={pendentes:pend,recebidos:recv};
-  });
-  return res;
-}
 
 // ════════════════════════════════════════
-// HELPERS
+
+function xgrp(c){ const m=c?.match(/\(([^)]+)\)$/); return m?m[1].trim():null; }
+
+function consolidate(rows) {
+
+  const gm=new Map(), res=[];
+
+  rows.forEach(r=>{
+
+    const g=xgrp(r.cliente);
+
+    if(g){
+
+      if(!gm.has(g)){ const c={...r,cliente:g,_isGroup:true,_membros:[r.cliente],_mrows:[r]}; gm.set(g,c); res.push(c); }
+
+      else{ const c=gm.get(g); c._membros.push(r.cliente); c._mrows.push(r);
+
+        if(r.entrada&&(!c.entrada||r.entrada<c.entrada)) c.entrada=r.entrada;
+
+        ['cob1','cob2','cob3'].forEach(k=>{if(r[k]&&!c[k])c[k]=r[k];});
+
+        if(r.observacao&&r.observacao!==c.observacao) c.observacao=[c.observacao,r.observacao].filter(Boolean).join(' | ');
+
+      }
+
+    } else res.push(r);
+
+  });
+
+  return res.sort((a,b)=>(a.entrada||'').localeCompare(b.entrada||''));
+
+}
+
+function consolidateDocs(rd) {
+
+  const res={};
+
+  Object.keys(rd).forEach(c=>{ if(!xgrp(c)) res[c]=rd[c]; });
+
+  const gs={};
+
+  Object.keys(rd).forEach(c=>{ const g=xgrp(c); if(!g) return;
+
+    if(!gs[g]) gs[g]={pend:new Set(),recv:new Set()};
+
+    rd[c].pendentes.forEach(d=>gs[g].pend.add(d));
+
+    rd[c].recebidos.forEach(d=>gs[g].recv.add(d));
+
+  });
+
+  Object.keys(gs).forEach(g=>{
+
+    const pend=[...gs[g].pend], recv=[...gs[g].recv].filter(d=>!gs[g].pend.has(d));
+
+    res[g]={pendentes:pend,recebidos:recv};
+
+  });
+
+  return res;
+
+}
+
+
+
 // ════════════════════════════════════════
+
+// HELPERS
+
+// ════════════════════════════════════════
+
 function enc(s){ return encodeURIComponent(s); }
+
 function fmtStr(v){ if(v==null) return ''; const s=String(v).trim(); return s.startsWith('=')?'':s; }
+
 function fmtDate(v){
-  if(!v&&v!==0) return '';
-  if(typeof v==='number'){ const d=new Date(new Date(1899,11,30).getTime()+v*86400000); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
-  const s=String(v).trim(); if(!s) return '';
-  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
-  const p=s.split('/'); if(p.length===3){ let yr=p[2]; if(yr.length===2)yr='20'+yr; return `${yr}-${pad(p[1])}-${pad(p[0])}`; }
-  return '';
+
+  if(!v&&v!==0) return '';
+
+  if(typeof v==='number'){ const d=new Date(new Date(1899,11,30).getTime()+v*86400000); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+
+  const s=String(v).trim(); if(!s) return '';
+
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
+
+  const p=s.split('/'); if(p.length===3){ let yr=p[2]; if(yr.length===2)yr='20'+yr; return `${yr}-${pad(p[1])}-${pad(p[0])}`; }
+
+  return '';
+
 }
+
 function pad(n){ return String(n).padStart(2,'0'); }
+
 function fmtBR(d){ if(!d) return '–'; const[y,m,di]=d.split('-'); return `${di}/${m}/${y}`; }
+
 function wkM(ds){ if(!ds) return 0; const w=Math.ceil(new Date(ds+'T12:00:00').getDate()/7); return w>=4?4:w; }
+
 function alerta(r){
-  const s=r.status;
-  if(!s) return {cls:'al-ver',lbl:'VERIFICAR'};
-  if(s==='Finalizado') return {cls:'al-ativo',lbl:'ATIVO'};
-  if(s.startsWith('Declinado')) return {cls:'al-inativo',lbl:'INATIVO'};
-  if(s==='Pausado'){ if(r.entrada&&(TODAY-new Date(r.entrada+'T12:00:00'))/864e5>30&&!r.cob3) return {cls:'al-sr',lbl:'SEM RETORNO'}; return {cls:'al-inativo',lbl:'INATIVO'}; }
-  if(['Contrato Pendente','Documento Pendente','Contrato e Documentos','Direcionado Crédito'].includes(s)){
-    if(r.entrada&&!r.assinado&&(TODAY-new Date(r.entrada+'T12:00:00'))/864e5>30) return {cls:'al-sr',lbl:'SEM RETORNO'};
-    return {cls:'al-and',lbl:'EM ANDAMENTO'};
-  }
-  return {cls:'al-ver',lbl:'VERIFICAR'};
+
+  const s=r.status;
+
+  if(!s) return {cls:'al-ver',lbl:'VERIFICAR'};
+
+  if(s==='Finalizado') return {cls:'al-ativo',lbl:'ATIVO'};
+
+  if(s.startsWith('Declinado')) return {cls:'al-inativo',lbl:'INATIVO'};
+
+  if(s==='Pausado'){ if(r.entrada&&(TODAY-new Date(r.entrada+'T12:00:00'))/864e5>30&&!r.cob3) return {cls:'al-sr',lbl:'SEM RETORNO'}; return {cls:'al-inativo',lbl:'INATIVO'}; }
+
+  if(['Contrato Pendente','Documento Pendente','Contrato e Documentos','Direcionado Crédito'].includes(s)){
+
+    if(r.entrada&&!r.assinado&&(TODAY-new Date(r.entrada+'T12:00:00'))/864e5>30) return {cls:'al-sr',lbl:'SEM RETORNO'};
+
+    return {cls:'al-and',lbl:'EM ANDAMENTO'};
+
+  }
+
+  return {cls:'al-ver',lbl:'VERIFICAR'};
+
 }
+
 function abadge(r){ const{cls,lbl}=alerta(r); return `<span class="alerta ${cls}"><span class="dot"></span>${lbl}</span>`; }
+
 function sbadge(s){
-  if(!s) return '<span class="badge b-mu">–</span>';
-  if(s==='Finalizado') return `<span class="badge b-gn">${s}</span>`;
-  if(s==='Contrato Pendente'||s==='Documento Pendente') return `<span class="badge b-go">${s}</span>`;
-  if(s==='Contrato e Documentos') return `<span class="badge b-or">${s}</span>`;
-  if(s.startsWith('Declinado')) return `<span class="badge b-rd">${s}</span>`;
-  if(s==='Pausado') return `<span class="badge b-mu">${s}</span>`;
-  if(s==='Direcionado Crédito') return `<span class="badge b-bl">${s}</span>`;
-  return `<span class="badge b-mu">${s}</span>`;
+
+  if(!s) return '<span class="badge b-mu">–</span>';
+
+  if(s==='Finalizado') return `<span class="badge b-gn">${s}</span>`;
+
+  if(s==='Contrato Pendente'||s==='Documento Pendente') return `<span class="badge b-go">${s}</span>`;
+
+  if(s==='Contrato e Documentos') return `<span class="badge b-or">${s}</span>`;
+
+  if(s.startsWith('Declinado')) return `<span class="badge b-rd">${s}</span>`;
+
+  if(s==='Pausado') return `<span class="badge b-mu">${s}</span>`;
+
+  if(s==='Direcionado Crédito') return `<span class="badge b-bl">${s}</span>`;
+
+  return `<span class="badge b-mu">${s}</span>`;
+
 }
+
 function prazo(r){
-  if(!r.entrada||['Finalizado','Declinado LFS','Declinado Cliente'].includes(r.status)) return '–';
-  const pz=new Date(new Date(r.entrada+'T12:00:00').getTime()+30*864e5);
-  const diff=Math.ceil((pz-TODAY)/864e5), ps=pz.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-  if(diff<0) return `<span class="pv">⚠ Vencido ${ps}</span>`;
-  if(diff<=5) return `<span class="pa">⏳ ${diff}d (${ps})</span>`;
-  return `<span class="pk">${ps}</span>`;
+
+  if(!r.entrada||['Finalizado','Declinado LFS','Declinado Cliente'].includes(r.status)) return '–';
+
+  const pz=new Date(new Date(r.entrada+'T12:00:00').getTime()+30*864e5);
+
+  const diff=Math.ceil((pz-TODAY)/864e5), ps=pz.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+
+  if(diff<0) return `<span class="pv">⚠ Vencido ${ps}</span>`;
+
+  if(diff<=5) return `<span class="pa">⏳ ${diff}d (${ps})</span>`;
+
+  return `<span class="pk">${ps}</span>`;
+
 }
+
 function efic(rows){ const v=rows.filter(r=>r.assinado&&r.entrada); if(!v.length) return null; return Math.round(v.reduce((a,r)=>a+Math.abs((new Date(r.assinado+'T12:00:00')-new Date(r.entrada+'T12:00:00'))/864e5),0)/v.length); }
+
 function cliCell(r){
-  if(r._isGroup) return `<span style="font-weight:600">${r.cliente}</span><span class="gtag" title="${r._membros.join('\n')}">GRUPO·${r._membros.length}</span>`;
-  return `<span style="font-weight:500">${r.cliente}</span>`;
+
+  if(r._isGroup) return `<span style="font-weight:600">${r.cliente}</span><span class="gtag" title="${r._membros.join('\n')}">GRUPO·${r._membros.length}</span>`;
+
+  return `<span style="font-weight:500">${r.cliente}</span>`;
+
 }
+
 function mk(s){ return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
+
+
 // ════════════════════════════════════════
+
 // FILTROS
+
 // ════════════════════════════════════════
+
 function filtered(){
-  return DATA.rows.filter(r=>{
-    if(!selM.has('todos')){ const mo=r.entrada?.substring(0,7); if(!mo||!selM.has(mo)) return false; }
-    if(!selG.has('todos')&&!selG.has(r.responsavel)) return false;
-    return true;
-  });
+
+  return DATA.rows.filter(r=>{
+
+    if(!selM.has('todos')){ const mo=r.entrada?.substring(0,7); if(!mo||!selM.has(mo)) return false; }
+
+    if(!selG.has('todos')&&!selG.has(r.responsavel)) return false;
+
+    return true;
+
+  });
+
 }
 
+
+
 // ════════════════════════════════════════
+
 // PILLS
-// ════════════════════════════════════════
-function buildPills(){
-  // Reconstrói os selects de período e gerente
-  const mos=[...new Set(DATA.rows.map(r=>r.entrada&&r.entrada.substring(0,7)).filter(Boolean))].sort();
-  const selMes = document.getElementById('selMes');
-  const curMes = selMes.value;
-  selMes.innerHTML = '<option value="todos">Todos os períodos</option>';
-  mos.forEach(m => {
-    const [yr,mo] = m.split('-');
-    const opt = document.createElement('option');
-    opt.value = m; opt.textContent = MO[+mo-1] + ' ' + yr;
-    selMes.appendChild(opt);
-  });
-  // Restaura seleção
-  if (curMes && curMes !== 'todos' && mos.includes(curMes)) selMes.value = curMes;
-  selMes.classList.toggle('has-value', selMes.value !== 'todos');
 
-  const ges=[...new Set(DATA.rows.map(r=>r.responsavel).filter(Boolean))].sort();
-  const selGe = document.getElementById('selGe');
-  const curGe = selGe.value;
-  selGe.innerHTML = '<option value="todos">Todos os gerentes</option>';
-  ges.forEach(g => {
-    const opt = document.createElement('option');
-    opt.value = g; opt.textContent = g;
-    selGe.appendChild(opt);
-  });
-  if (curGe && curGe !== 'todos' && ges.includes(curGe)) selGe.value = curGe;
-  selGe.classList.toggle('has-value', selGe.value !== 'todos');
+// ════════════════════════════════════════
+
+function buildPills(){
+
+  // Reconstrói os selects de período e gerente
+
+  const mos=[...new Set(DATA.rows.map(r=>r.entrada&&r.entrada.substring(0,7)).filter(Boolean))].sort();
+
+  const selMes = document.getElementById('selMes');
+
+  const curMes = selMes.value;
+
+  selMes.innerHTML = '<option value="todos">Todos os períodos</option>';
+
+  mos.forEach(m => {
+
+    const [yr,mo] = m.split('-');
+
+    const opt = document.createElement('option');
+
+    opt.value = m; opt.textContent = MO[+mo-1] + ' ' + yr;
+
+    selMes.appendChild(opt);
+
+  });
+
+  // Restaura seleção
+
+  if (curMes && curMes !== 'todos' && mos.includes(curMes)) selMes.value = curMes;
+
+  selMes.classList.toggle('has-value', selMes.value !== 'todos');
+
+
+
+  const ges=[...new Set(DATA.rows.map(r=>r.responsavel).filter(Boolean))].sort();
+
+  const selGe = document.getElementById('selGe');
+
+  const curGe = selGe.value;
+
+  selGe.innerHTML = '<option value="todos">Todos os gerentes</option>';
+
+  ges.forEach(g => {
+
+    const opt = document.createElement('option');
+
+    opt.value = g; opt.textContent = g;
+
+    selGe.appendChild(opt);
+
+  });
+
+  if (curGe && curGe !== 'todos' && ges.includes(curGe)) selGe.value = curGe;
+
+  selGe.classList.toggle('has-value', selGe.value !== 'todos');
+
 }
+
+
 
 function onSelMes(el) {
-  const val = el.value;
-  selM.clear();
-  selM.add(val === 'todos' ? 'todos' : val);
-  el.classList.toggle('has-value', val !== 'todos');
-  const label = val === 'todos' ? 'Todos' : (() => { const [yr,mo]=val.split('-'); return MOL[+mo-1]+' '+yr; })();
-  document.getElementById('moLbl').textContent = label;
-  renderAll();
+
+  const val = el.value;
+
+  selM.clear();
+
+  selM.add(val === 'todos' ? 'todos' : val);
+
+  el.classList.toggle('has-value', val !== 'todos');
+
+  const label = val === 'todos' ? 'Todos' : (() => { const [yr,mo]=val.split('-'); return MOL[+mo-1]+' '+yr; })();
+
+  document.getElementById('moLbl').textContent = label;
+
+  renderAll();
+
 }
+
+
 
 function onSelGe(el) {
-  const val = el.value;
-  selG.clear();
-  selG.add(val);
-  el.classList.toggle('has-value', val !== 'todos');
-  renderAll();
+
+  const val = el.value;
+
+  selG.clear();
+
+  selG.add(val);
+
+  el.classList.toggle('has-value', val !== 'todos');
+
+  renderAll();
+
 }
+
+
 
 // Mantém compatibilidade — styleGe não precisa mais fazer nada visual
+
 function styleGe() {}
+
 function addP() {}
+
 function togP() {}
 
+
+
 // ════════════════════════════════════════
+
 // RENDER
+
 // ════════════════════════════════════════
+
 function renderAll(){ const rows=filtered(); renderMetas(rows); renderDet(rows); renderFunil(rows); renderEfic(rows); renderGe(rows); renderCli(); renderDocs(); }
 
+
+
 function renderMetas(rows){
-  const isTodos=selM.has('todos'), isMulti=!isTodos&&selM.size>1, useM=isTodos||isMulti;
-  const suf=isTodos?'Geral':[...selM].map(m=>{const[yr,mo]=m.split('-');return MOL[+mo-1]+' '+yr;}).join(', ');
-  document.getElementById('metasT').textContent='Resumo de Metas — '+suf;
-  document.getElementById('detT').textContent='Detalhamento — '+suf;
-  let cols,getC,hint;
-  if(useM){
-    const ms=[...new Set(rows.map(r=>r.entrada?.substring(0,7)).filter(Boolean))].sort();
-    cols=ms.map(m=>{const[yr,mo]=m.split('-');return{k:m,l:MO[+mo-1]+'/'+yr.slice(2)};});
-    getC=r=>r.entrada?.substring(0,7); hint='por mês';
-  } else {
-    cols=[{k:1,l:'Sem 1'},{k:2,l:'Sem 2'},{k:3,l:'Sem 3'},{k:4,l:'Sem 4+'}];
-    getC=r=>wkM(r.entrada); hint='por semana';
-  }
-  document.getElementById('metasH').textContent=hint;
-  document.getElementById('metasTH').innerHTML='<tr><th>Gerente</th>'+cols.map(c=>`<th>${c.l}</th>`).join('')+'<th>Total</th></tr>';
-  const ges=[...new Set(rows.map(r=>r.responsavel).filter(Boolean))].sort();
-  document.getElementById('metasTB').innerHTML=ges.map(g=>{
-    const gr=rows.filter(r=>r.responsavel===g),tot=gr.length,c=GC[g]||'#555';
-    const cells=cols.map(col=>{const n=gr.filter(r=>getC(r)===col.k).length;return n>0?`<td><span class="chip-gn">${n}</span></td>`:`<td>0</td>`;}).join('');
-    return `<tr><td><strong style="color:${c}">${g}</strong></td>${cells}<td>${tot>0?`<span class="${tot>=5?'chip-gn':'chip-or'}">${tot}</span>`:`<span class="chip-rd">0</span>`}</td></tr>`;
-  }).join('')||`<tr><td colspan="${cols.length+2}" style="text-align:center;color:var(--mu);padding:20px">Sem dados</td></tr>`;
+
+  const isTodos=selM.has('todos'), isMulti=!isTodos&&selM.size>1, useM=isTodos||isMulti;
+
+  const suf=isTodos?'Geral':[...selM].map(m=>{const[yr,mo]=m.split('-');return MOL[+mo-1]+' '+yr;}).join(', ');
+
+  document.getElementById('metasT').textContent='Resumo de Metas — '+suf;
+
+  document.getElementById('detT').textContent='Detalhamento — '+suf;
+
+  let cols,getC,hint;
+
+  if(useM){
+
+    const ms=[...new Set(rows.map(r=>r.entrada?.substring(0,7)).filter(Boolean))].sort();
+
+    cols=ms.map(m=>{const[yr,mo]=m.split('-');return{k:m,l:MO[+mo-1]+'/'+yr.slice(2)};});
+
+    getC=r=>r.entrada?.substring(0,7); hint='por mês';
+
+  } else {
+
+    cols=[{k:1,l:'Sem 1'},{k:2,l:'Sem 2'},{k:3,l:'Sem 3'},{k:4,l:'Sem 4+'}];
+
+    getC=r=>wkM(r.entrada); hint='por semana';
+
+  }
+
+  document.getElementById('metasH').textContent=hint;
+
+  document.getElementById('metasTH').innerHTML='<tr><th>Gerente</th>'+cols.map(c=>`<th>${c.l}</th>`).join('')+'<th>Total</th></tr>';
+
+  const ges=[...new Set(rows.map(r=>r.responsavel).filter(Boolean))].sort();
+
+  document.getElementById('metasTB').innerHTML=ges.map(g=>{
+
+    const gr=rows.filter(r=>r.responsavel===g),tot=gr.length,c=GC[g]||'#555';
+
+    const cells=cols.map(col=>{const n=gr.filter(r=>getC(r)===col.k).length;return n>0?`<td><span class="chip-gn">${n}</span></td>`:`<td>0</td>`;}).join('');
+
+    return `<tr><td><strong style="color:${c}">${g}</strong></td>${cells}<td>${tot>0?`<span class="${tot>=5?'chip-gn':'chip-or'}">${tot}</span>`:`<span class="chip-rd">0</span>`}</td></tr>`;
+
+  }).join('')||`<tr><td colspan="${cols.length+2}" style="text-align:center;color:var(--mu);padding:20px">Sem dados</td></tr>`;
+
 }
+
+
 
 function renderDet(rows){
-  const s   = (document.getElementById('srchDet')?.value||'').toLowerCase();
-  const stF = document.getElementById('selStDet')?.value||'';
-  const alF = document.getElementById('selAlDet')?.value||'';
-  if (s||stF||alF) {
-    rows = rows.filter(r=>{
-      if (s && !(r.cliente||'').toLowerCase().includes(s)) return false;
-      if (stF && r.status !== stF) return false;
-      if (alF && alerta(r).cls !== alF) return false;
-      return true;
-    });
-  }
-  document.getElementById('detCnt').textContent = rows.length + ' cliente(s)';
-  document.getElementById('detTB').innerHTML=[...rows].sort((a,b)=>(a.entrada||'').localeCompare(b.entrada||'')).map(r=>{
-    const cobs=[r.cob1,r.cob2,r.cob3].filter(Boolean).map(d=>fmtBR(d)).join('; '),c=GC[r.responsavel]||'#555';
-    return `<tr style="cursor:pointer" onclick="openDetail('${mk(r.cliente)}')">
-      <td>${cliCell(r)}</td>
-      <td><span style="color:${c};font-weight:600">${r.responsavel||'–'}</span></td>
-      <td>${sbadge(r.status)}</td><td>${fmtBR(r.entrada)}</td><td>${abadge(r)}</td>
-      <td style="font-size:12px;color:var(--mu)">${cobs||'–'}</td>
-      <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.observacao||''}</td>
-      <td><button onclick="event.stopPropagation();openEdit('${mk(r.cliente)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
-    </tr>`;
-  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--mu);padding:20px">Sem dados</td></tr>';
+
+  const s   = (document.getElementById('srchDet')?.value||'').toLowerCase();
+
+  const stF = document.getElementById('selStDet')?.value||'';
+
+  const alF = document.getElementById('selAlDet')?.value||'';
+
+  if (s||stF||alF) {
+
+    rows = rows.filter(r=>{
+
+      if (s && !(r.cliente||'').toLowerCase().includes(s)) return false;
+
+      if (stF && r.status !== stF) return false;
+
+      if (alF && alerta(r).cls !== alF) return false;
+
+      return true;
+
+    });
+
+  }
+
+  document.getElementById('detCnt').textContent = rows.length + ' cliente(s)';
+
+  document.getElementById('detTB').innerHTML=[...rows].sort((a,b)=>(a.entrada||'').localeCompare(b.entrada||'')).map(r=>{
+
+    const cobs=[r.cob1,r.cob2,r.cob3].filter(Boolean).map(d=>fmtBR(d)).join('; '),c=GC[r.responsavel]||'#555';
+
+    return `<tr style="cursor:pointer" onclick="openDetail('${mk(r.cliente)}')">
+
+      <td>${cliCell(r)}</td>
+
+      <td><span style="color:${c};font-weight:600">${r.responsavel||'–'}</span></td>
+
+      <td>${sbadge(r.status)}</td><td>${fmtBR(r.entrada)}</td><td>${abadge(r)}</td>
+
+      <td style="font-size:12px;color:var(--mu)">${cobs||'–'}</td>
+
+      <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.observacao||''}</td>
+
+      <td><button onclick="event.stopPropagation();openEdit('${mk(r.cliente)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
+
+    </tr>`;
+
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--mu);padding:20px">Sem dados</td></tr>';
+
 }
+
+
 
 function renderFunil(rows){
-  const and=rows.filter(r=>['Contrato Pendente','Documento Pendente','Contrato e Documentos','Direcionado Crédito'].includes(r.status)).length;
-  const fin=rows.filter(r=>r.status==='Finalizado').length, pau=rows.filter(r=>r.status==='Pausado').length, per=rows.filter(r=>r.status?.startsWith('Declinado')).length;
-  document.getElementById('funilB').innerHTML=[{l:'Em andamento',d:'Aguardando docs/contrato',v:and},{l:'Finalizados',d:'Cadastro concluído',v:fin},{l:'Pausados',d:'Oportunidade esfriou',v:pau},{l:'Perdidos',d:'Declinado',v:per}]
-    .map(f=>`<div class="funil-row"><span class="fl">${f.l}</span><span class="fd">${f.d}</span><span class="fv">${f.v}</span></div>`).join('');
+
+  const and=rows.filter(r=>['Contrato Pendente','Documento Pendente','Contrato e Documentos','Direcionado Crédito'].includes(r.status)).length;
+
+  const fin=rows.filter(r=>r.status==='Finalizado').length, pau=rows.filter(r=>r.status==='Pausado').length, per=rows.filter(r=>r.status?.startsWith('Declinado')).length;
+
+  document.getElementById('funilB').innerHTML=[{l:'Em andamento',d:'Aguardando docs/contrato',v:and},{l:'Finalizados',d:'Cadastro concluído',v:fin},{l:'Pausados',d:'Oportunidade esfriou',v:pau},{l:'Perdidos',d:'Declinado',v:per}]
+
+    .map(f=>`<div class="funil-row"><span class="fl">${f.l}</span><span class="fd">${f.d}</span><span class="fv">${f.v}</span></div>`).join('');
+
 }
+
+
 
 function renderEfic(rows){
-  const ges=[...new Set(rows.map(r=>r.responsavel).filter(Boolean))].sort();
-  document.getElementById('eficB').innerHTML=ges.map(g=>{
-    const c=GC[g]||'#555', d=efic(rows.filter(r=>r.responsavel===g));
-    return `<div class="efrow"><span class="efn" style="color:${c}">${g}</span><span class="efd">${d!==null?d+' dias':'–'}</span></div>`;
-  }).join('')||'<p style="color:var(--mu);font-size:12px">Sem dados</p>';
+
+  const ges=[...new Set(rows.map(r=>r.responsavel).filter(Boolean))].sort();
+
+  document.getElementById('eficB').innerHTML=ges.map(g=>{
+
+    const c=GC[g]||'#555', d=efic(rows.filter(r=>r.responsavel===g));
+
+    return `<div class="efrow"><span class="efn" style="color:${c}">${g}</span><span class="efd">${d!==null?d+' dias':'–'}</span></div>`;
+
+  }).join('')||'<p style="color:var(--mu);font-size:12px">Sem dados</p>';
+
 }
+
+
 
 function renderGe(rows){
-  const ges=[...new Set(rows.map(r=>r.responsavel).filter(Boolean))].sort();
-  document.getElementById('geC').innerHTML=ges.map(g=>{
-    const gr=rows.filter(r=>r.responsavel===g),c=GC[g]||'#555';
-    const fin=gr.filter(r=>r.status==='Finalizado').length,and=gr.filter(r=>['Contrato Pendente','Documento Pendente','Contrato e Documentos','Direcionado Crédito'].includes(r.status)).length;
-    const dec=gr.filter(r=>r.status?.startsWith('Declinado')).length,pau=gr.filter(r=>r.status==='Pausado').length;
-    const taxa=gr.length?Math.round(fin/gr.length*100):0, d=efic(gr);
-    const trs=[...gr].sort((a,b)=>(a.entrada||'').localeCompare(b.entrada||'')).map(r=>{
-      const cobs=[r.cob1,r.cob2,r.cob3].filter(Boolean).map(d=>fmtBR(d)).join('; ');
-      return `<tr style="cursor:pointer" onclick="openDetail('${mk(r.cliente)}')">
-        <td>${cliCell(r)}</td><td>${sbadge(r.status)}</td><td>${fmtBR(r.entrada)}</td>
-        <td>${r.assinado?`<span class="badge b-gn">✓ ${fmtBR(r.assinado)}</span>`:'–'}</td>
-        <td>${abadge(r)}</td><td style="font-size:12px;color:var(--mu)">${cobs||'–'}</td>
-        <td><button onclick="event.stopPropagation();openEdit('${mk(r.cliente)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
-      </tr>`;
-    }).join('');
-    return `<div class="ge-sec"><div class="ge-head">
-      <div class="ge-av" style="background:${c}">${g[0]}</div>
-      <div class="ge-nm">${g}</div>
-      <div class="ge-stats">
-        <div class="gss"><div class="gss-v" style="color:var(--gn)">${fin}</div><div class="gss-l">Finaliz.</div></div>
-        <div class="gss"><div class="gss-v" style="color:var(--or)">${and}</div><div class="gss-l">Andamento</div></div>
-        <div class="gss"><div class="gss-v" style="color:var(--rd)">${dec}</div><div class="gss-l">Declinado</div></div>
-        <div class="gss"><div class="gss-v" style="color:var(--mu)">${pau}</div><div class="gss-l">Pausado</div></div>
-        <div class="gss"><div class="gss-v" style="color:var(--nav)">${taxa}%</div><div class="gss-l">Conversão</div></div>
-        ${d!==null?`<div class="gss"><div class="gss-v" style="color:var(--or)">${d}d</div><div class="gss-l">Efic.</div></div>`:''}
-      </div></div>
-      <div class="block"><table class="dt"><thead><tr><th>Cliente</th><th>Status</th><th>Entrada</th><th>Assinado</th><th>Alerta</th><th>Cobranças</th><th></th></tr></thead><tbody>${trs}</tbody></table></div>
-    </div>`;
-  }).join('')||'<p style="text-align:center;color:var(--mu);padding:40px">Sem dados</p>';
+
+  const ges=[...new Set(rows.map(r=>r.responsavel).filter(Boolean))].sort();
+
+  document.getElementById('geC').innerHTML=ges.map(g=>{
+
+    const gr=rows.filter(r=>r.responsavel===g),c=GC[g]||'#555';
+
+    const fin=gr.filter(r=>r.status==='Finalizado').length,and=gr.filter(r=>['Contrato Pendente','Documento Pendente','Contrato e Documentos','Direcionado Crédito'].includes(r.status)).length;
+
+    const dec=gr.filter(r=>r.status?.startsWith('Declinado')).length,pau=gr.filter(r=>r.status==='Pausado').length;
+
+    const taxa=gr.length?Math.round(fin/gr.length*100):0, d=efic(gr);
+
+    const trs=[...gr].sort((a,b)=>(a.entrada||'').localeCompare(b.entrada||'')).map(r=>{
+
+      const cobs=[r.cob1,r.cob2,r.cob3].filter(Boolean).map(d=>fmtBR(d)).join('; ');
+
+      return `<tr style="cursor:pointer" onclick="openDetail('${mk(r.cliente)}')">
+
+        <td>${cliCell(r)}</td><td>${sbadge(r.status)}</td><td>${fmtBR(r.entrada)}</td>
+
+        <td>${r.assinado?`<span class="badge b-gn">✓ ${fmtBR(r.assinado)}</span>`:'–'}</td>
+
+        <td>${abadge(r)}</td><td style="font-size:12px;color:var(--mu)">${cobs||'–'}</td>
+
+        <td><button onclick="event.stopPropagation();openEdit('${mk(r.cliente)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
+
+      </tr>`;
+
+    }).join('');
+
+    return `<div class="ge-sec"><div class="ge-head">
+
+      <div class="ge-av" style="background:${c}">${g[0]}</div>
+
+      <div class="ge-nm">${g}</div>
+
+      <div class="ge-stats">
+
+        <div class="gss"><div class="gss-v" style="color:var(--gn)">${fin}</div><div class="gss-l">Finaliz.</div></div>
+
+        <div class="gss"><div class="gss-v" style="color:var(--or)">${and}</div><div class="gss-l">Andamento</div></div>
+
+        <div class="gss"><div class="gss-v" style="color:var(--rd)">${dec}</div><div class="gss-l">Declinado</div></div>
+
+        <div class="gss"><div class="gss-v" style="color:var(--mu)">${pau}</div><div class="gss-l">Pausado</div></div>
+
+        <div class="gss"><div class="gss-v" style="color:var(--nav)">${taxa}%</div><div class="gss-l">Conversão</div></div>
+
+        ${d!==null?`<div class="gss"><div class="gss-v" style="color:var(--or)">${d}d</div><div class="gss-l">Efic.</div></div>`:''}
+
+      </div></div>
+
+      <div class="block"><table class="dt"><thead><tr><th>Cliente</th><th>Status</th><th>Entrada</th><th>Assinado</th><th>Alerta</th><th>Cobranças</th><th></th></tr></thead><tbody>${trs}</tbody></table></div>
+
+    </div>`;
+
+  }).join('')||'<p style="text-align:center;color:var(--mu);padding:40px">Sem dados</p>';
+
 }
+
+
 
 function renderCli(){
-  const s=(document.getElementById('srchCli')?.value||'').toLowerCase(),stF=document.getElementById('selStCli')?.value||'';
-  const rawAll=DATA.rows.filter(r=>{
-    if(!selM.has('todos')){const mo=r.entrada?.substring(0,7);if(!mo||!selM.has(mo))return false;}
-    if(!selG.has('todos')&&!selG.has(r.responsavel))return false;
-    return true;
-  });
-  const rows=consolidate(rawAll).filter(r=>{ if(s&&!r.cliente?.toLowerCase().includes(s))return false; if(stF&&r.status!==stF)return false; return true; });
-  document.getElementById('cliCnt').textContent=rows.length+' cliente(s)';
-  document.getElementById('cliTB').innerHTML=rows.map(r=>{
-    const c=GC[r.responsavel]||'#555';
-    return `<tr style="cursor:pointer" onclick="openDetail('${mk(r.cliente)}')">
-      <td>${cliCell(r)}</td>
-      <td><span style="color:${c};font-weight:600">${r.responsavel||'–'}</span></td>
-      <td style="font-size:12px;color:var(--mu)">${r.tipo||'–'}</td>
-      <td>${sbadge(r.status)}</td><td>${fmtBR(r.entrada)}</td><td>${r.assinado?fmtBR(r.assinado):'–'}</td>
-      <td>${abadge(r)}</td><td>${prazo(r)}</td>
-      <td><button onclick="event.stopPropagation();openEdit('${mk(r.cliente)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
-    </tr>`;
-  }).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--mu);padding:20px">Sem resultados</td></tr>';
+
+  const s=(document.getElementById('srchCli')?.value||'').toLowerCase(),stF=document.getElementById('selStCli')?.value||'';
+
+  const rawAll=DATA.rows.filter(r=>{
+
+    if(!selM.has('todos')){const mo=r.entrada?.substring(0,7);if(!mo||!selM.has(mo))return false;}
+
+    if(!selG.has('todos')&&!selG.has(r.responsavel))return false;
+
+    return true;
+
+  });
+
+  const rows=consolidate(rawAll).filter(r=>{ if(s&&!r.cliente?.toLowerCase().includes(s))return false; if(stF&&r.status!==stF)return false; return true; });
+
+  document.getElementById('cliCnt').textContent=rows.length+' cliente(s)';
+
+  document.getElementById('cliTB').innerHTML=rows.map(r=>{
+
+    const c=GC[r.responsavel]||'#555';
+
+    return `<tr style="cursor:pointer" onclick="openDetail('${mk(r.cliente)}')">
+
+      <td>${cliCell(r)}</td>
+
+      <td><span style="color:${c};font-weight:600">${r.responsavel||'–'}</span></td>
+
+      <td style="font-size:12px;color:var(--mu)">${r.tipo||'–'}</td>
+
+      <td>${sbadge(r.status)}</td><td>${fmtBR(r.entrada)}</td><td>${r.assinado?fmtBR(r.assinado):'–'}</td>
+
+      <td>${abadge(r)}</td><td>${prazo(r)}</td>
+
+      <td><button onclick="event.stopPropagation();openEdit('${mk(r.cliente)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
+
+    </tr>`;
+
+  }).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--mu);padding:20px">Sem resultados</td></tr>';
+
 }
+
+
 
 function renderDocs(){
-  const s=(document.getElementById('srchDocs')?.value||'').toLowerCase();
-  const gF=document.getElementById('selDocsGe')?.value||'', fF=document.getElementById('selDocsFil')?.value||'';
-  let ents=Object.entries(DATA.docs_map).filter(([cli,d])=>{
-    if(s&&!cli.toLowerCase().includes(s))return false;
-    const row=DATA.rows.find(r=>r.cliente===cli);
-    if(gF&&row?.responsavel!==gF)return false;
-    if(!selG.has('todos')&&row&&!selG.has(row.responsavel))return false;
-    if(fF==='pend'&&d.pendentes.length===0)return false;
-    if(fF==='ok'&&d.pendentes.length>0)return false;
-    return true;
-  });
-  document.getElementById('docsCnt').textContent=ents.length+' cliente(s)';
-  ents.sort((a,b)=>b[1].pendentes.length-a[1].pendentes.length);
-  document.getElementById('docsTB').innerHTML=ents.map(([cli,d])=>{
-    const row=DATA.rows.find(r=>r.cliente===cli),g=row?.responsavel||'–',c=GC[g]||'#555';
-    const pt=d.pendentes.slice(0,4).map(p=>`<span class="doc-pend">${p}</span>`).join(' ');
-    const more=d.pendentes.length>4?`<span style="font-size:11px;color:var(--mu)">+${d.pendentes.length-4}</span>`:'';
-    return `<tr>
-      <td><strong>${cli}</strong></td>
-      <td><span style="color:${c};font-weight:600">${g}</span></td>
-      <td>${sbadge(row?.status)}</td>
-      <td><span class="badge b-gn">${d.recebidos.length} ✓</span></td>
-      <td>${d.pendentes.length>0?`<span class="badge b-rd">${d.pendentes.length} ⏳</span>`:'<span class="badge b-gn">Completo</span>'}</td>
-      <td><div class="doc-grid">${pt}${more}</div></td>
-      <td><button onclick="openDocsModal('${mk(cli)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
-    </tr>`;
-  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:20px">Sem resultados</td></tr>';
+
+  const s=(document.getElementById('srchDocs')?.value||'').toLowerCase();
+
+  const gF=document.getElementById('selDocsGe')?.value||'', fF=document.getElementById('selDocsFil')?.value||'';
+
+  let ents=Object.entries(DATA.docs_map).filter(([cli,d])=>{
+
+    if(s&&!cli.toLowerCase().includes(s))return false;
+
+    const row=DATA.rows.find(r=>r.cliente===cli);
+
+    if(gF&&row?.responsavel!==gF)return false;
+
+    if(!selG.has('todos')&&row&&!selG.has(row.responsavel))return false;
+
+    if(fF==='pend'&&d.pendentes.length===0)return false;
+
+    if(fF==='ok'&&d.pendentes.length>0)return false;
+
+    return true;
+
+  });
+
+  document.getElementById('docsCnt').textContent=ents.length+' cliente(s)';
+
+  ents.sort((a,b)=>b[1].pendentes.length-a[1].pendentes.length);
+
+  document.getElementById('docsTB').innerHTML=ents.map(([cli,d])=>{
+
+    const row=DATA.rows.find(r=>r.cliente===cli),g=row?.responsavel||'–',c=GC[g]||'#555';
+
+    const pt=d.pendentes.slice(0,4).map(p=>`<span class="doc-pend">${p}</span>`).join(' ');
+
+    const more=d.pendentes.length>4?`<span style="font-size:11px;color:var(--mu)">+${d.pendentes.length-4}</span>`:'';
+
+    return `<tr>
+
+      <td><strong>${cli}</strong></td>
+
+      <td><span style="color:${c};font-weight:600">${g}</span></td>
+
+      <td>${sbadge(row?.status)}</td>
+
+      <td><span class="badge b-gn">${d.recebidos.length} ✓</span></td>
+
+      <td>${d.pendentes.length>0?`<span class="badge b-rd">${d.pendentes.length} ⏳</span>`:'<span class="badge b-gn">Completo</span>'}</td>
+
+      <td><div class="doc-grid">${pt}${more}</div></td>
+
+      <td><button onclick="openDocsModal('${mk(cli)}')" style="background:var(--or-dim);color:var(--or);border:none;padding:4px 9px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">✏️</button></td>
+
+    </tr>`;
+
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:20px">Sem resultados</td></tr>';
+
 }
+
+
 
 function popSelects(){
-  const ges=[...new Set(DATA.rows.map(r=>r.responsavel).filter(Boolean))].sort();
-  document.getElementById('selDocsGe').innerHTML='<option value="">Todos os gerentes</option>'+ges.map(g=>`<option>${g}</option>`).join('');
+
+  const ges=[...new Set(DATA.rows.map(r=>r.responsavel).filter(Boolean))].sort();
+
+  document.getElementById('selDocsGe').innerHTML='<option value="">Todos os gerentes</option>'+ges.map(g=>`<option>${g}</option>`).join('');
+
 }
 
+
+
 // ════════════════════════════════════════
+
 // MODAIS
+
 // ════════════════════════════════════════
+
 function findR(cli){ const rows=filtered(),cons=consolidate(rows); return cons.find(r=>r.cliente===cli)||DATA.rows.find(r=>r.cliente===cli); }
+
 function grpDocs(r){
-  if(!r?._isGroup) return DATA.docs_map[r?.cliente];
-  const p=new Set(),v=new Set();
-  (r._membros||[]).forEach(m=>{ const d=DATA.docs_map[m]; if(d){d.pendentes.forEach(x=>p.add(x));d.recebidos.forEach(x=>v.add(x));} });
-  return{pendentes:[...p],recebidos:[...v].filter(x=>!p.has(x))};
+
+  if(!r?._isGroup) return DATA.docs_map[r?.cliente];
+
+  const p=new Set(),v=new Set();
+
+  (r._membros||[]).forEach(m=>{ const d=DATA.docs_map[m]; if(d){d.pendentes.forEach(x=>p.add(x));d.recebidos.forEach(x=>v.add(x));} });
+
+  return{pendentes:[...p],recebidos:[...v].filter(x=>!p.has(x))};
+
 }
+
+
 
 function openDetail(cli){
-  const r=findR(cli); if(!r) return;
-  setM(r._isGroup?`${cli} <span style="font-size:10px;background:var(--bl-dim);color:var(--bl);padding:2px 8px;border-radius:10px;font-weight:700">GRUPO</span>`:cli,`Gerente: ${r.responsavel||'–'} · ${r.tipo||'–'}`);
-  const cobs=[r.cob1,r.cob2,r.cob3].filter(Boolean).map(d=>`<span class="badge b-mu">${fmtBR(d)}</span>`).join(' ');
-  const docs=DATA.docs_map[cli]||grpDocs(r);
-  let body='';
-  if(r._isGroup&&r._membros?.length)
-    body+=`<div style="background:var(--bl-dim);border-radius:8px;padding:10px 14px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--bl);margin-bottom:6px">Empresas do Grupo (${r._membros.length})</div><div style="display:flex;flex-wrap:wrap;gap:5px">${r._membros.map(m=>`<span style="font-size:12px;background:#fff;border:1px solid var(--bd);border-radius:5px;padding:3px 9px">${m}</span>`).join('')}</div></div>`;
-  body+=`<div class="mgrid">
-    <div class="mf"><div class="mfl">Status</div><div class="mfv">${sbadge(r.status)}</div></div>
-    <div class="mf"><div class="mfl">Situação</div><div class="mfv">${abadge(r)}</div></div>
-    <div class="mf"><div class="mfl">Entrada</div><div class="mfv">${fmtBR(r.entrada)||'–'}</div></div>
-    <div class="mf"><div class="mfl">Assinado</div><div class="mfv">${fmtBR(r.assinado)||'–'}</div></div>
-    <div class="mf"><div class="mfl">Tipo</div><div class="mfv">${r.tipo||'–'}</div></div>
-    <div class="mf"><div class="mfl">Prazo Doc.</div><div class="mfv">${prazo(r)}</div></div>
-  </div>`;
-  if(cobs) body+=`<div class="mf" style="margin-bottom:12px"><div class="mfl">Cobranças</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${cobs}</div></div>`;
-  if(r.status_cobranca) body+=`<div class="mf" style="margin-bottom:12px"><div class="mfl">Status Cobrança</div><div class="mfv">${r.status_cobranca}</div></div>`;
-  if(r.declinio_motivo) body+=`<div class="mf" style="margin-bottom:12px;background:var(--rd-dim)"><div class="mfl" style="color:var(--rd)">Motivo Declínio</div><div class="mfv">${r.declinio_motivo}</div></div>`;
-  if(r.observacao) body+=`<div class="mf" style="margin-bottom:12px"><div class="mfl">Observação</div><div class="mfv">${r.observacao}</div></div>`;
-  if(docs) body+=`<div style="margin-top:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Documentação (${docs.recebidos.length} ✓ · ${docs.pendentes.length} ⏳)</div><div class="doc-grid">${docs.recebidos.map(d=>`<span class="doc-ok">✓ ${d}</span>`).join('')}${docs.pendentes.map(d=>`<span class="doc-pend">⏳ ${d}</span>`).join('')}</div></div>`;
-  document.getElementById('mB').innerHTML=body;
-  document.getElementById('mA').innerHTML=`<button class="mabtn" onclick="openEdit('${mk(cli)}')">✏️ Editar</button><button class="mabtn" onclick="openDocsModal('${mk(cli)}')">📄 Docs</button><button class="mabtn" onclick="closeMO()">Fechar</button>`;
-  openM();
+
+  const r=findR(cli); if(!r) return;
+
+  setM(r._isGroup?`${cli} <span style="font-size:10px;background:var(--bl-dim);color:var(--bl);padding:2px 8px;border-radius:10px;font-weight:700">GRUPO</span>`:cli,`Gerente: ${r.responsavel||'–'} · ${r.tipo||'–'}`);
+
+  const cobs=[r.cob1,r.cob2,r.cob3].filter(Boolean).map(d=>`<span class="badge b-mu">${fmtBR(d)}</span>`).join(' ');
+
+  const docs=DATA.docs_map[cli]||grpDocs(r);
+
+  let body='';
+
+  if(r._isGroup&&r._membros?.length)
+
+    body+=`<div style="background:var(--bl-dim);border-radius:8px;padding:10px 14px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--bl);margin-bottom:6px">Empresas do Grupo (${r._membros.length})</div><div style="display:flex;flex-wrap:wrap;gap:5px">${r._membros.map(m=>`<span style="font-size:12px;background:#fff;border:1px solid var(--bd);border-radius:5px;padding:3px 9px">${m}</span>`).join('')}</div></div>`;
+
+  body+=`<div class="mgrid">
+
+    <div class="mf"><div class="mfl">Status</div><div class="mfv">${sbadge(r.status)}</div></div>
+
+    <div class="mf"><div class="mfl">Situação</div><div class="mfv">${abadge(r)}</div></div>
+
+    <div class="mf"><div class="mfl">Entrada</div><div class="mfv">${fmtBR(r.entrada)||'–'}</div></div>
+
+    <div class="mf"><div class="mfl">Assinado</div><div class="mfv">${fmtBR(r.assinado)||'–'}</div></div>
+
+    <div class="mf"><div class="mfl">Tipo</div><div class="mfv">${r.tipo||'–'}</div></div>
+
+    <div class="mf"><div class="mfl">Prazo Doc.</div><div class="mfv">${prazo(r)}</div></div>
+
+  </div>`;
+
+  if(cobs) body+=`<div class="mf" style="margin-bottom:12px"><div class="mfl">Cobranças</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${cobs}</div></div>`;
+
+  if(r.status_cobranca) body+=`<div class="mf" style="margin-bottom:12px"><div class="mfl">Status Cobrança</div><div class="mfv">${r.status_cobranca}</div></div>`;
+
+  if(r.declinio_motivo) body+=`<div class="mf" style="margin-bottom:12px;background:var(--rd-dim)"><div class="mfl" style="color:var(--rd)">Motivo Declínio</div><div class="mfv">${r.declinio_motivo}</div></div>`;
+
+  if(r.observacao) body+=`<div class="mf" style="margin-bottom:12px"><div class="mfl">Observação</div><div class="mfv">${r.observacao}</div></div>`;
+
+  if(docs) body+=`<div style="margin-top:14px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Documentação (${docs.recebidos.length} ✓ · ${docs.pendentes.length} ⏳)</div><div class="doc-grid">${docs.recebidos.map(d=>`<span class="doc-ok">✓ ${d}</span>`).join('')}${docs.pendentes.map(d=>`<span class="doc-pend">⏳ ${d}</span>`).join('')}</div></div>`;
+
+  document.getElementById('mB').innerHTML=body;
+
+  document.getElementById('mA').innerHTML=`<button class="mabtn" onclick="openEdit('${mk(cli)}')">✏️ Editar</button><button class="mabtn" onclick="openDocsModal('${mk(cli)}')">📄 Docs</button><button class="mabtn" onclick="closeMO()">Fechar</button>`;
+
+  openM();
+
 }
+
+
 
 function openEdit(cli){
-  const r=DATA.rows.find(x=>x.cliente===cli)||findR(cli); if(!r) return;
-  setM('✏️ Editar Cliente',r.cliente);
-  renderEF(r,false); openM();
-}
-function openNewModal(){
-  const r={cliente:'',responsavel:'',tipo:'',status:'Contrato e Documentos',entrada:'',cob1:'',cob2:'',cob3:'',status_cobranca:'',assinado:'',declinio_motivo:'',observacao:'',_row:null};
-  setM('+ Novo Cliente','Preencha os dados abaixo');
-  renderEF(r,true); openM();
-}
-function renderEF(r,isNew){
-  const grupoSalvo = r._grupo || '';
-  const grupoList  = grupoSalvo ? grupoSalvo.split('|').map(s=>s.trim()).filter(Boolean) : [];
-  const isGrupo    = grupoList.length > 0;
-  const gerentes   = ['Ana','Arnaldo','César','Fred','Gabriel','Luiz','Rodrigo'];
 
-  document.getElementById('mB').innerHTML=`
-    <div class="ef-row full"><div class="ef-g"><label class="ef-l">Nome do Cliente *</label>
-      <input class="ef-i" id="ef_c" value="${r.cliente||''}" ${!isNew?'readonly style="background:var(--bg);cursor:not-allowed"':''} placeholder="Razão Social Ltda"/></div></div>
-    ${isNew ? `
-    <div class="ef-row full"><div class="ef-g">
-      <label class="grupo-toggle${isGrupo?' active':''}" id="grupoToggle">
-        <input type="checkbox" id="ef_is_grupo" ${isGrupo?'checked':''} onchange="toggleGrupo()"/>
-        É um grupo? (múltiplas razões sociais)
-      </label>
-      <div id="grupoPanel" style="display:${isGrupo?'block':'none'};margin-top:8px;">
-        <div class="grupo-rows" id="grupoRows">
-          ${grupoList.map((g,i)=>`
-            <div class="grupo-row-item" id="gri_${i}">
-              <input class="ef-i" placeholder="Razão Social do grupo" value="${g}" id="ef_gr_${i}"/>
-              <button type="button" onclick="removeGrupoRow(${i})" title="Remover">✕</button>
-            </div>`).join('')}
-        </div>
-        <button type="button" class="grupo-add" onclick="addGrupoRow()">+ Adicionar empresa do grupo</button>
-      </div>
-    </div></div>` : ''}
-    <div class="ef-row">
-      <div class="ef-g"><label class="ef-l">Gerente *</label>
-        <select class="ef-i" id="ef_r">${gerentes.map(g=>`<option ${r.responsavel===g?'selected':''}>${g}</option>`).join('')}</select></div>
-      <div class="ef-g"><label class="ef-l">Tipo de Operação</label>
-        <select class="ef-i" id="ef_t">${TIPO_LIST.map(t=>`<option value="${t}" ${r.tipo===t?'selected':''}>${t||'(não definido)'}</option>`).join('')}</select></div>
-    </div>
-    <div class="ef-row">
-      <div class="ef-g"><label class="ef-l">Status *</label>
-        <select class="ef-i" id="ef_s">${ST_LIST.map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
-      <div class="ef-g"><label class="ef-l">Data de Entrada</label><input class="ef-i" type="date" id="ef_e" value="${r.entrada||''}"/></div>
-    </div>
-    <div class="ef-row">
-      <div class="ef-g"><label class="ef-l">Cobrança 1</label><input class="ef-i" type="date" id="ef_c1" value="${r.cob1||''}"/></div>
-      <div class="ef-g"><label class="ef-l">Cobrança 2</label><input class="ef-i" type="date" id="ef_c2" value="${r.cob2||''}"/></div>
-    </div>
-    <div class="ef-row">
-      <div class="ef-g"><label class="ef-l">Cobrança 3</label><input class="ef-i" type="date" id="ef_c3" value="${r.cob3||''}"/></div>
-      <div class="ef-g"><label class="ef-l">Status Cobrança</label>
-        <select class="ef-i" id="ef_sc">${['','Em tratativa','Sem Retorno'].map(s=>`<option value="${s}" ${r.status_cobranca===s?'selected':''}>${s||'(nenhum)'}</option>`).join('')}</select></div>
-    </div>
-    <div class="ef-row">
-      <div class="ef-g"><label class="ef-l">Data Assinado</label><input class="ef-i" type="date" id="ef_a" value="${r.assinado||''}"/></div>
-      <div class="ef-g"><label class="ef-l">Motivo Declínio</label><input class="ef-i" id="ef_d" value="${r.declinio_motivo||''}" placeholder="se aplicável"/></div>
-    </div>
-    <div class="ef-row full"><div class="ef-g"><label class="ef-l">Observação</label>
-      <textarea class="ef-i" id="ef_o" rows="2">${r.observacao||''}</textarea></div></div>`;
-  document.getElementById('mA').innerHTML=
-    `${!isNew?`<button class="mabtn del" onclick="confirmDel('${mk(r.cliente)}',${r._row||0})">🗑 Excluir</button>`:''}<button class="mabtn" onclick="closeMO()">Cancelar</button><button class="mabtn save" onclick="saveEdit('${mk(r.cliente)}',${isNew},${r._row||0})">💾 Salvar</button>`;
+  const r=DATA.rows.find(x=>x.cliente===cli)||findR(cli); if(!r) return;
+
+  setM('✏️ Editar Cliente',r.cliente);
+
+  renderEF(r,false); openM();
+
 }
+
+function openNewModal(){
+
+  const r={cliente:'',responsavel:'',tipo:'',status:'Contrato e Documentos',entrada:'',cob1:'',cob2:'',cob3:'',status_cobranca:'',assinado:'',declinio_motivo:'',observacao:'',_row:null};
+
+  setM('+ Novo Cliente','Preencha os dados abaixo');
+
+  renderEF(r,true); openM();
+
+}
+
+function renderEF(r,isNew){
+
+  const grupoSalvo = r._grupo || '';
+
+  const grupoList  = grupoSalvo ? grupoSalvo.split('|').map(s=>s.trim()).filter(Boolean) : [];
+
+  const isGrupo    = grupoList.length > 0;
+
+  const gerentes   = ['Ana','Arnaldo','César','Fred','Gabriel','Luiz','Rodrigo'];
+
+
+
+  document.getElementById('mB').innerHTML=`
+
+    <div class="ef-row full"><div class="ef-g"><label class="ef-l">Nome do Cliente *</label>
+
+      <input class="ef-i" id="ef_c" value="${r.cliente||''}" ${!isNew?'readonly style="background:var(--bg);cursor:not-allowed"':''} placeholder="Razão Social Ltda"/></div></div>
+
+    ${isNew ? `
+
+    <div class="ef-row full"><div class="ef-g">
+
+      <label class="grupo-toggle${isGrupo?' active':''}" id="grupoToggle">
+
+        <input type="checkbox" id="ef_is_grupo" ${isGrupo?'checked':''} onchange="toggleGrupo()"/>
+
+        É um grupo? (múltiplas razões sociais)
+
+      </label>
+
+      <div id="grupoPanel" style="display:${isGrupo?'block':'none'};margin-top:8px;">
+
+        <div class="grupo-rows" id="grupoRows">
+
+          ${grupoList.map((g,i)=>`
+
+            <div class="grupo-row-item" id="gri_${i}">
+
+              <input class="ef-i" placeholder="Razão Social do grupo" value="${g}" id="ef_gr_${i}"/>
+
+              <button type="button" onclick="removeGrupoRow(${i})" title="Remover">✕</button>
+
+            </div>`).join('')}
+
+        </div>
+
+        <button type="button" class="grupo-add" onclick="addGrupoRow()">+ Adicionar empresa do grupo</button>
+
+      </div>
+
+    </div></div>` : ''}
+
+    <div class="ef-row">
+
+      <div class="ef-g"><label class="ef-l">Gerente *</label>
+
+        <select class="ef-i" id="ef_r">${gerentes.map(g=>`<option ${r.responsavel===g?'selected':''}>${g}</option>`).join('')}</select></div>
+
+      <div class="ef-g"><label class="ef-l">Tipo de Operação</label>
+
+        <select class="ef-i" id="ef_t">${TIPO_LIST.map(t=>`<option value="${t}" ${r.tipo===t?'selected':''}>${t||'(não definido)'}</option>`).join('')}</select></div>
+
+    </div>
+
+    <div class="ef-row">
+
+      <div class="ef-g"><label class="ef-l">Status *</label>
+
+        <select class="ef-i" id="ef_s">${ST_LIST.map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+
+      <div class="ef-g"><label class="ef-l">Data de Entrada</label><input class="ef-i" type="date" id="ef_e" value="${r.entrada||''}"/></div>
+
+    </div>
+
+    <div class="ef-row">
+
+      <div class="ef-g"><label class="ef-l">Cobrança 1</label><input class="ef-i" type="date" id="ef_c1" value="${r.cob1||''}"/></div>
+
+      <div class="ef-g"><label class="ef-l">Cobrança 2</label><input class="ef-i" type="date" id="ef_c2" value="${r.cob2||''}"/></div>
+
+    </div>
+
+    <div class="ef-row">
+
+      <div class="ef-g"><label class="ef-l">Cobrança 3</label><input class="ef-i" type="date" id="ef_c3" value="${r.cob3||''}"/></div>
+
+      <div class="ef-g"><label class="ef-l">Status Cobrança</label>
+
+        <select class="ef-i" id="ef_sc">${['','Em tratativa','Sem Retorno'].map(s=>`<option value="${s}" ${r.status_cobranca===s?'selected':''}>${s||'(nenhum)'}</option>`).join('')}</select></div>
+
+    </div>
+
+    <div class="ef-row">
+
+      <div class="ef-g"><label class="ef-l">Data Assinado</label><input class="ef-i" type="date" id="ef_a" value="${r.assinado||''}"/></div>
+
+      <div class="ef-g"><label class="ef-l">Motivo Declínio</label><input class="ef-i" id="ef_d" value="${r.declinio_motivo||''}" placeholder="se aplicável"/></div>
+
+    </div>
+
+    <div class="ef-row full"><div class="ef-g"><label class="ef-l">Observação</label>
+
+      <textarea class="ef-i" id="ef_o" rows="2">${r.observacao||''}</textarea></div></div>`;
+
+  document.getElementById('mA').innerHTML=
+
+    `${!isNew?`<button class="mabtn del" onclick="confirmDel('${mk(r.cliente)}',${r._row||0})">🗑 Excluir</button>`:''}<button class="mabtn" onclick="closeMO()">Cancelar</button><button class="mabtn save" onclick="saveEdit('${mk(r.cliente)}',${isNew},${r._row||0})">💾 Salvar</button>`;
+
+}
+
+
 
 // ── Grupo helpers ──
+
 let _grupoCount = 0;
+
 function toggleGrupo(){
-  const cb    = document.getElementById('ef_is_grupo');
-  const panel = document.getElementById('grupoPanel');
-  const label = document.getElementById('grupoToggle');
-  if(!panel) return;
-  panel.style.display = cb.checked ? 'block' : 'none';
-  label.classList.toggle('active', cb.checked);
-  if(cb.checked && document.querySelectorAll('#grupoRows .grupo-row-item').length===0) addGrupoRow();
+
+  const cb    = document.getElementById('ef_is_grupo');
+
+  const panel = document.getElementById('grupoPanel');
+
+  const label = document.getElementById('grupoToggle');
+
+  if(!panel) return;
+
+  panel.style.display = cb.checked ? 'block' : 'none';
+
+  label.classList.toggle('active', cb.checked);
+
+  if(cb.checked && document.querySelectorAll('#grupoRows .grupo-row-item').length===0) addGrupoRow();
+
 }
+
 function addGrupoRow(){
-  const rows = document.getElementById('grupoRows');
-  if(!rows) return;
-  const idx = _grupoCount++;
-  const div = document.createElement('div');
-  div.className='grupo-row-item'; div.id='gri_'+idx;
-  div.innerHTML=`<input class="ef-i" placeholder="Razão Social do grupo" id="ef_gr_${idx}"/><button type="button" onclick="removeGrupoRow(${idx})" title="Remover">✕</button>`;
-  rows.appendChild(div);
+
+  const rows = document.getElementById('grupoRows');
+
+  if(!rows) return;
+
+  const idx = _grupoCount++;
+
+  const div = document.createElement('div');
+
+  div.className='grupo-row-item'; div.id='gri_'+idx;
+
+  div.innerHTML=`<input class="ef-i" placeholder="Razão Social do grupo" id="ef_gr_${idx}"/><button type="button" onclick="removeGrupoRow(${idx})" title="Remover">✕</button>`;
+
+  rows.appendChild(div);
+
 }
+
 function removeGrupoRow(idx){ const el=document.getElementById('gri_'+idx); if(el) el.remove(); }
+
 function collectGrupo(){
-  const cb=document.getElementById('ef_is_grupo');
-  if(!cb||!cb.checked) return '';
-  return [...document.querySelectorAll('#grupoRows input')].map(i=>i.value.trim()).filter(Boolean).join(' | ');
+
+  const cb=document.getElementById('ef_is_grupo');
+
+  if(!cb||!cb.checked) return '';
+
+  return [...document.querySelectorAll('#grupoRows input')].map(i=>i.value.trim()).filter(Boolean).join(' | ');
+
 }
+
 async function saveEdit(origCli, isNew, sheetRow){
-  const _grupoStr = isNew ? collectGrupo() : '';
-  const row={
-    cliente: isNew?document.getElementById('ef_c').value.trim():origCli,
-    responsavel:document.getElementById('ef_r').value,
-    tipo:document.getElementById('ef_t').value,
-    status:document.getElementById('ef_s').value,
-    entrada:document.getElementById('ef_e').value,
-    cob1:document.getElementById('ef_c1').value,
-    cob2:document.getElementById('ef_c2').value,
-    cob3:document.getElementById('ef_c3').value,
-    status_cobranca:document.getElementById('ef_sc').value,
-    assinado:document.getElementById('ef_a').value,
-    declinio_motivo:document.getElementById('ef_d').value,
-    observacao:document.getElementById('ef_o').value,
-    _grupo:_grupoStr||'',
-    _row:sheetRow||null,
-  };
-  if(!row.cliente){toast('Nome do cliente obrigatório.','err');return;}
-  if(isNew) DATA.rows.push(row);
-  else{ const i=DATA.rows.findIndex(r=>r.cliente===origCli); if(i>=0) DATA.rows[i]={...DATA.rows[i],...row}; }
-  buildPills(); popSelects(); renderAll(); closeMO();
-  toast('Salvando…','inf');
-  if(tok){
-    try{
-      document.getElementById('sov').classList.add('show');
-      await saveRow(row);
-      document.getElementById('sov').classList.remove('show');
-      toast('Salvo na planilha!','ok');
-    }catch(e){document.getElementById('sov').classList.remove('show');toast('Erro: '+e.message,'err');}
-  } else toast('Salvo localmente (faça login para sincronizar).','inf');
+
+  const _grupoStr = isNew ? collectGrupo() : '';
+
+  const row={
+
+    cliente: isNew?document.getElementById('ef_c').value.trim():origCli,
+
+    responsavel:document.getElementById('ef_r').value,
+
+    tipo:document.getElementById('ef_t').value,
+
+    status:document.getElementById('ef_s').value,
+
+    entrada:document.getElementById('ef_e').value,
+
+    cob1:document.getElementById('ef_c1').value,
+
+    cob2:document.getElementById('ef_c2').value,
+
+    cob3:document.getElementById('ef_c3').value,
+
+    status_cobranca:document.getElementById('ef_sc').value,
+
+    assinado:document.getElementById('ef_a').value,
+
+    declinio_motivo:document.getElementById('ef_d').value,
+
+    observacao:document.getElementById('ef_o').value,
+
+    _grupo:_grupoStr||'',
+
+    _row:sheetRow||null,
+
+  };
+
+  if(!row.cliente){toast('Nome do cliente obrigatório.','err');return;}
+
+  if(isNew) DATA.rows.push(row);
+
+  else{ const i=DATA.rows.findIndex(r=>r.cliente===origCli); if(i>=0) DATA.rows[i]={...DATA.rows[i],...row}; }
+
+  buildPills(); popSelects(); renderAll(); closeMO();
+
+  toast('Salvando…','inf');
+
+  if(tok){
+
+    try{
+
+      document.getElementById('sov').classList.add('show');
+
+      await saveRow(row);
+
+      document.getElementById('sov').classList.remove('show');
+
+      toast('Salvo na planilha!','ok');
+
+    }catch(e){document.getElementById('sov').classList.remove('show');toast('Erro: '+e.message,'err');}
+
+  } else toast('Salvo localmente (faça login para sincronizar).','inf');
+
 }
+
+
 
 async function confirmDel(cli, sheetRow){
-  if(!confirm(`Excluir "${cli}"? Isso limpará a linha na planilha.`)) return;
-  DATA.rows=DATA.rows.filter(r=>r.cliente!==cli);
-  delete DATA.docs_map[cli];
-  buildPills(); popSelects(); renderAll(); closeMO();
-  if(tok&&sheetRow){ try{await clearRow(sheetRow);toast('Removido da planilha.','ok');}catch(e){toast('Erro: '+e.message,'err');} }
-  else toast('Removido localmente.','inf');
+
+  if(!confirm(`Excluir "${cli}"? Isso limpará a linha na planilha.`)) return;
+
+  DATA.rows=DATA.rows.filter(r=>r.cliente!==cli);
+
+  delete DATA.docs_map[cli];
+
+  buildPills(); popSelects(); renderAll(); closeMO();
+
+  if(tok&&sheetRow){ try{await clearRow(sheetRow);toast('Removido da planilha.','ok');}catch(e){toast('Erro: '+e.message,'err');} }
+
+  else toast('Removido localmente.','inf');
+
 }
+
+
 
 function openDocsModal(cli){
-  const row=DATA.rows.find(r=>r.cliente===cli)||findR(cli);
-  const ex=DATA.docs_map[cli]||grpDocs(findR(cli));
-  const chk=ex?ex.recebidos:[];
-  setM(`📄 Documentação — ${cli}`,`Gerente: ${row?.responsavel||'–'}`);
-  document.getElementById('mB').innerHTML=`
-    <div style="font-size:12px;color:var(--mu);margin-bottom:11px">Marque os documentos <strong>recebidos</strong>:</div>
-    <div class="dclist" id="dcl">
-      ${DOC_COLS.map(d=>`<div class="dci${chk.includes(d)?' on':''}" onclick="togDc(this)">
-        <div class="dccb">${chk.includes(d)?'✓':''}</div>
-        <span class="dcn">${d}</span>
-      </div>`).join('')}
-    </div>`;
-  document.getElementById('mA').innerHTML=`<button class="mabtn" onclick="closeMO()">Cancelar</button><button class="mabtn save" onclick="saveDocsM('${mk(cli)}')">💾 Salvar Docs</button>`;
-  openM();
+
+  const row=DATA.rows.find(r=>r.cliente===cli)||findR(cli);
+
+  const ex=DATA.docs_map[cli]||grpDocs(findR(cli));
+
+  const chk=ex?ex.recebidos:[];
+
+  setM(`📄 Documentação — ${cli}`,`Gerente: ${row?.responsavel||'–'}`);
+
+  document.getElementById('mB').innerHTML=`
+
+    <div style="font-size:12px;color:var(--mu);margin-bottom:11px">Marque os documentos <strong>recebidos</strong>:</div>
+
+    <div class="dclist" id="dcl">
+
+      ${DOC_COLS.map(d=>`<div class="dci${chk.includes(d)?' on':''}" onclick="togDc(this)">
+
+        <div class="dccb">${chk.includes(d)?'✓':''}</div>
+
+        <span class="dcn">${d}</span>
+
+      </div>`).join('')}
+
+    </div>`;
+
+  document.getElementById('mA').innerHTML=`<button class="mabtn" onclick="closeMO()">Cancelar</button><button class="mabtn save" onclick="saveDocsM('${mk(cli)}')">💾 Salvar Docs</button>`;
+
+  openM();
+
 }
+
 function togDc(el){ el.classList.toggle('on'); el.querySelector('.dccb').textContent=el.classList.contains('on')?'✓':''; }
+
 async function saveDocsM(cli){
-  const chk=[...document.querySelectorAll('#dcl .dci.on')].map(el=>el.querySelector('.dcn').textContent);
-  const unchk=DOC_COLS.filter(d=>!chk.includes(d));
-  DATA.docs_map[cli]={recebidos:chk,pendentes:unchk};
-  renderAll(); closeMO(); toast('Salvando docs…','inf');
-  if(tok){ try{await saveDocRow(cli,chk);toast('Docs salvos na planilha!','ok');}catch(e){toast('Erro: '+e.message,'err');} }
-  else toast('Docs salvos localmente.','inf');
+
+  const chk=[...document.querySelectorAll('#dcl .dci.on')].map(el=>el.querySelector('.dcn').textContent);
+
+  const unchk=DOC_COLS.filter(d=>!chk.includes(d));
+
+  DATA.docs_map[cli]={recebidos:chk,pendentes:unchk};
+
+  renderAll(); closeMO(); toast('Salvando docs…','inf');
+
+  if(tok){ try{await saveDocRow(cli,chk);toast('Docs salvos na planilha!','ok');}catch(e){toast('Erro: '+e.message,'err');} }
+
+  else toast('Docs salvos localmente.','inf');
+
 }
+
+
 
 function setM(t,s){ document.getElementById('mT').innerHTML=t; document.getElementById('mS').textContent=s||''; }
+
 function openM(){ document.getElementById('modalBg').classList.add('open'); }
+
 function closeMO(){ document.getElementById('modalBg').classList.remove('open'); }
+
 function closeMOcl(e){ if(e.target===document.getElementById('modalBg')) closeMO(); }
 
-// ════════════════════════════════════════
-// TABS / UI
-// ════════════════════════════════════════
-function showTab(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  const idx={visao:0,gerente:1,clientes:2,docs:3}[id]??0;
-  document.querySelectorAll('.tab')[idx]?.classList.add('active');
-}
-function toast(msg,type='inf'){
-  const t=document.createElement('div');
-  t.className=`ti ${type}`; t.textContent=msg;
-  document.getElementById('toast').appendChild(t);
-  setTimeout(()=>t.remove(),3800);
-}
-function lb(p){
-  const b=document.getElementById('lb');
-  b.style.width=p+'%'; b.style.opacity=p===0?'0':'1';
-}
+
 
 // ════════════════════════════════════════
-// DADOS OFFLINE
+
+// TABS / UI
+
 // ════════════════════════════════════════
+
+function showTab(id){
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+
+  document.getElementById('tab-'+id).classList.add('active');
+
+  const idx={visao:0,gerente:1,clientes:2,docs:3}[id]??0;
+
+  document.querySelectorAll('.tab')[idx]?.classList.add('active');
+
+}
+
+function toast(msg,type='inf'){
+
+  const t=document.createElement('div');
+
+  t.className=`ti ${type}`; t.textContent=msg;
+
+  document.getElementById('toast').appendChild(t);
+
+  setTimeout(()=>t.remove(),3800);
+
+}
+
+function lb(p){
+
+  const b=document.getElementById('lb');
+
+  b.style.width=p+'%'; b.style.opacity=p===0?'0':'1';
+
+}
+
+
+
+// ════════════════════════════════════════
+
+// DADOS OFFLINE
+
+// ════════════════════════════════════════
+
 const OFFLINE=[{"cliente":"Cinafe Comercio E Industria De Aco E Ferro Ltda","responsavel":"César","tipo":"Capital de Giro","status":"Finalizado","entrada":"2025-10-30","cob1":"","cob2":"","cob3":"","status_cobranca":"","assinado":"2025-10-12","declinio_motivo":"","observacao":""},{"cliente":"Desenvolva Indústria Gráfica Ltda","responsavel":"Arnaldo","tipo":"Duplicata","status":"Contrato Pendente","entrada":"2025-11-28","cob1":"2025-12-10","cob2":"2025-12-19","cob3":"2026-02-03","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"Alcob","responsavel":"Arnaldo","tipo":"Antecipação de Convencionais","status":"Contrato Pendente","entrada":"2025-12-01","cob1":"2025-12-12","cob2":"2026-01-16","cob3":"2026-01-20","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"Grupo Barbosa","responsavel":"Ana","tipo":"Antecipação de convencionais","status":"Finalizado","entrada":"2025-12-04","cob1":"","cob2":"","cob3":"","status_cobranca":"","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"Grupo Polytec","responsavel":"César","tipo":"Antecipação de duplicatas","status":"Finalizado","entrada":"2025-12-16","cob1":"","cob2":"","cob3":"","status_cobranca":"","assinado":"2025-12-22","declinio_motivo":"","observacao":""},{"cliente":"Zapiranga","responsavel":"Arnaldo","tipo":"Antecipação de Convencionais","status":"Finalizado","entrada":"2026-01-08","cob1":"2026-01-16","cob2":"2026-01-26","cob3":"","status_cobranca":"","assinado":"2026-01-28","declinio_motivo":"","observacao":""},{"cliente":"Dma Distribuidora S.a","responsavel":"Luiz","tipo":"Capital de Giro","status":"Finalizado","entrada":"2026-01-16","cob1":"","cob2":"","cob3":"","status_cobranca":"","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"MMS/Friolog","responsavel":"César","tipo":"Antecipação de convencionais","status":"Finalizado","entrada":"2026-01-20","cob1":"2026-01-26","cob2":"","cob3":"","status_cobranca":"","assinado":"2026-01-28","declinio_motivo":"","observacao":""},{"cliente":"ARX Soluções Urbanas LTDA","responsavel":"César","tipo":"Antecipação de Contratos","status":"Finalizado","entrada":"2026-01-16","cob1":"2026-01-20","cob2":"2026-01-26","cob3":"2026-02-09","status_cobranca":"Em tratativa","assinado":"2026-01-02","declinio_motivo":"","observacao":""},{"cliente":"Transporte Meirelles","responsavel":"Fred","tipo":"Nota comercial","status":"Finalizado","entrada":"2026-01-22","cob1":"2026-01-23","cob2":"2026-01-26","cob3":"","status_cobranca":"","assinado":"2026-01-23","declinio_motivo":"","observacao":""},{"cliente":"Friocargo Triangulo LTDA","responsavel":"César","tipo":"Antecipação de convencionais","status":"Documento Pendente","entrada":"2026-01-29","cob1":"2026-01-30","cob2":"2026-02-09","cob3":"2026-02-19","status_cobranca":"Em tratativa","assinado":"2026-01-28","declinio_motivo":"","observacao":""},{"cliente":"Multi Formato Distribuidora SA (Super Nosso)","responsavel":"Luiz","tipo":"","status":"Pausado","entrada":"2026-02-02","cob1":"","cob2":"","cob3":"","status_cobranca":"","assinado":"","declinio_motivo":"","observacao":"Não tem demanda, possível retomada no 2° semestre."},{"cliente":"Comercial Dahana Limitada (Super Nosso)","responsavel":"Luiz","tipo":"","status":"Pausado","entrada":"2026-02-02","cob1":"","cob2":"","cob3":"","status_cobranca":"","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"Madson Eletrometalúrgica LTDA - Suggar","responsavel":"Luiz","tipo":"Capital de Giro","status":"Contrato Pendente","entrada":"2026-02-04","cob1":"2026-02-09","cob2":"2026-02-24","cob3":"2026-03-02","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"Carvalho Hosken SA Engenharia e Construções","responsavel":"Arnaldo","tipo":"Nota comercial","status":"Contrato e Documentos","entrada":"2026-02-06","cob1":"2026-02-19","cob2":"2026-02-23","cob3":"","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":"Reunião 27/03 às 11h"},{"cliente":"Frigomarca Ltda","responsavel":"Arnaldo","tipo":"Duplicata","status":"Contrato e Documentos","entrada":"2026-02-10","cob1":"2026-02-19","cob2":"2026-02-23","cob3":"2026-03-09","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"CWA Industria de Eucalipto Imunizado LTDA (Grupo CWA)","responsavel":"Luiz","tipo":"Duplicata","status":"Contrato e Documentos","entrada":"2026-02-11","cob1":"2026-02-23","cob2":"2026-03-05","cob3":"","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"CWA Transportes LTDA (Grupo CWA)","responsavel":"Luiz","tipo":"Duplicata","status":"Contrato e Documentos","entrada":"2026-02-11","cob1":"2026-02-23","cob2":"2026-03-06","cob3":"","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"Master Brasilia Comercial De Alimentos Ltda","responsavel":"Luiz","tipo":"Duplicata","status":"Contrato e Documentos","entrada":"2026-02-12","cob1":"2026-02-18","cob2":"2026-02-24","cob3":"2026-03-09","status_cobranca":"Em tratativa","assinado":"","declinio_motivo":"","observacao":""},{"cliente":"Multi Mix Ltda (Grupo Mix)","responsavel":"Rodrigo","tipo":"","status":"Documento Pendente","entrada":"2026-02-23","cob1":"","cob2":"","cob3":"","status_cobranca":"Em tratativa","assinado":"2026-02-23","declinio_motivo":"","observacao":""},{"cliente":"Somamix Distribuidora Ltda (Grupo Mix)","responsavel":"Rodrigo","tipo":"","status":"Documento Pendente","entrada":"2026-02-23","cob1":"","cob2":"","cob3":"","status_cobranca":"Em tratativa","assinado":"2026-02-23","declinio_motivo":"","observacao":""},{"cliente":"Carvalho Machado Construções LTDA","responsavel":"Rodrigo","tipo":"","status":"Finalizado","entrada":"2026-03-05","cob1":"","cob2":"","cob3":"","status_cobranca":"","assinado":"2026-03-09","declinio_motivo":"","observacao":""}];
 
+
+
 // ════════════════════════════════════════
+
 // INIT
+
 // ════════════════════════════════════════
+
 document.addEventListener('DOMContentLoaded',()=>{
-  // Se esta página carregou com ?code= é o callback OAuth2 no popup
-  (async function checkAuthCallback() {
-    const params = new URLSearchParams(window.location.search);
-    const code   = params.get('code');
-    const state  = params.get('state');
-    const error  = params.get('error');
-    if (!code && !error) return;
 
-    history.replaceState({}, document.title, window.location.pathname);
+  // Se esta página carregou com ?code= é o callback OAuth2 no popup
 
-    if (error) {
-      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: params.get('error_description') || error }));
-      try { window.close(); } catch(e) {}
-      return;
-    }
+  (async function checkAuthCallback() {
 
-    const verifier   = localStorage.getItem('pkce_verifier');
-    const savedState = localStorage.getItem('pkce_state');
-    if (state !== savedState) {
-      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: 'State inválido — tente novamente.' }));
-      try { window.close(); } catch(e) {}
-      return;
-    }
+    const params = new URLSearchParams(window.location.search);
 
-    try {
-      const tokenResp = await fetch(
-        'https://login.microsoftonline.com/' + CFG.tenantId + '/oauth2/v2.0/token',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            client_id:     CFG.clientId,
-            grant_type:    'authorization_code',
-            code,
-            redirect_uri:  'https://rayssa-fidc.github.io/Dash-Clientes/',
-            code_verifier: verifier,
-          }),
-        }
-      );
-      const tokenData = await tokenResp.json();
-      if (!tokenResp.ok) throw new Error(tokenData.error_description || 'Erro token');
+    const code   = params.get('code');
 
-      const meResp = await fetch('https://graph.microsoft.com/v1.0/me', {
-        headers: { Authorization: 'Bearer ' + tokenData.access_token }
-      });
-      const me    = meResp.ok ? await meResp.json() : {};
-      const email = me.mail || me.userPrincipalName || '';
-      const name  = me.displayName || email;
-      const session = {
-        tok:     tokenData.access_token,
-        refresh: tokenData.refresh_token || '',
-        exp:     Date.now() + (tokenData.expires_in * 1000),
-        name, email,
-      };
-      localStorage.removeItem('pkce_verifier');
-      localStorage.removeItem('pkce_state');
-      localStorage.setItem('fidc_auth_result', JSON.stringify(session));
-      localStorage.setItem('fidc_session',     JSON.stringify(session));
-    } catch(e) {
-      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: e.message }));
-    }
-    try { window.close(); } catch(e) {}
-    setTimeout(() => { if (!window.closed) window.location.href = 'https://rayssa-fidc.github.io/Dash-Clientes/'; }, 500);
-  })();
+    const state  = params.get('state');
 
-  document.getElementById('hts').textContent=TODAY.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
-  DATA.rows=consolidate(OFFLINE); DATA.docs_map={};
-  buildPills(); popSelects(); renderAll();
-  showLoginOverlay();
-  initMSAL();
+    const error  = params.get('error');
+
+    if (!code && !error) return;
+
+
+
+    history.replaceState({}, document.title, window.location.pathname);
+
+
+
+    if (error) {
+
+      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: params.get('error_description') || error }));
+
+      try { window.close(); } catch(e) {}
+
+      return;
+
+    }
+
+
+
+    const verifier   = localStorage.getItem('pkce_verifier');
+
+    const savedState = localStorage.getItem('pkce_state');
+
+    if (state !== savedState) {
+
+      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: 'State inválido — tente novamente.' }));
+
+      try { window.close(); } catch(e) {}
+
+      return;
+
+    }
+
+
+
+    try {
+
+      const tokenResp = await fetch(
+
+        'https://login.microsoftonline.com/' + CFG.tenantId + '/oauth2/v2.0/token',
+
+        {
+
+          method: 'POST',
+
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+
+          body: new URLSearchParams({
+
+            client_id:     CFG.clientId,
+
+            grant_type:    'authorization_code',
+
+            code,
+
+            redirect_uri:  'https://rayssa-fidc.github.io/Dash-Clientes/',
+
+            code_verifier: verifier,
+
+          }),
+
+        }
+
+      );
+
+      const tokenData = await tokenResp.json();
+
+      if (!tokenResp.ok) throw new Error(tokenData.error_description || 'Erro token');
+
+
+
+      const meResp = await fetch('https://graph.microsoft.com/v1.0/me', {
+
+        headers: { Authorization: 'Bearer ' + tokenData.access_token }
+
+      });
+
+      const me    = meResp.ok ? await meResp.json() : {};
+
+      const email = me.mail || me.userPrincipalName || '';
+
+      const name  = me.displayName || email;
+
+      const session = {
+
+        tok:     tokenData.access_token,
+
+        refresh: tokenData.refresh_token || '',
+
+        exp:     Date.now() + (tokenData.expires_in * 1000),
+
+        name, email,
+
+      };
+
+      localStorage.removeItem('pkce_verifier');
+
+      localStorage.removeItem('pkce_state');
+
+      localStorage.setItem('fidc_auth_result', JSON.stringify(session));
+
+      localStorage.setItem('fidc_session',     JSON.stringify(session));
+
+    } catch(e) {
+
+      localStorage.setItem('fidc_auth_result', JSON.stringify({ error: e.message }));
+
+    }
+
+    try { window.close(); } catch(e) {}
+
+    setTimeout(() => { if (!window.closed) window.location.href = 'https://rayssa-fidc.github.io/Dash-Clientes/'; }, 500);
+
+  })();
+
+
+
+  document.getElementById('hts').textContent=TODAY.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
+
+  DATA.rows=consolidate(OFFLINE); DATA.docs_map={};
+
+  buildPills(); popSelects(); renderAll();
+
+  showLoginOverlay();
+
+  initMSAL();
+
 });
+
 </script>
+
 </body>
+
 </html>
